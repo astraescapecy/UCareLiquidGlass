@@ -11,20 +11,19 @@ private struct ExportDocument: Identifiable {
 /// Phase 4 — Profile: account, goals retake, reminder times, StoreKit manage, export, privacy, per-step history.
 struct ProfileOverviewView: View {
     @EnvironmentObject private var appState: AppState
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showLogoutConfirm = false
     @State private var showDeleteConfirm = false
-    @State private var profileVisible = false
     @State private var showHistory = false
     @State private var showHelp = false
     @State private var exportDocument: ExportDocument?
     @State private var avatarPickerItem: PhotosPickerItem?
     @State private var avatarVersion = 0
     @State private var manageSubsMessage: String?
+    @State private var restoreBusy = false
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 16) {
                 Text("Profile")
                     .font(Theme.Typography.largeTitle())
                     .foregroundStyle(Theme.ColorToken.textPrimary)
@@ -33,56 +32,58 @@ struct ProfileOverviewView: View {
                     .foregroundStyle(Theme.ColorToken.textSecondary)
 
                 if let p = appState.userProfile {
+                    // MARK: Account
                     GlassCard {
-                        HStack(alignment: .top, spacing: 14) {
-                            avatarView(for: p)
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text(p.fullName)
-                                    .font(Theme.Typography.title2())
-                                    .foregroundStyle(Theme.ColorToken.textPrimary)
-                                Text("Member since \(p.memberSince.formatted(date: .abbreviated, time: .omitted))")
-                                    .font(Theme.Typography.caption())
-                                    .foregroundStyle(Theme.ColorToken.textSecondary)
-                                Text(p.email)
-                                    .font(Theme.Typography.caption())
-                                    .foregroundStyle(Theme.ColorToken.textTertiary)
-                                PhotosPicker(selection: $avatarPickerItem, matching: .images, photoLibrary: .shared()) {
-                                    Text("Change photo")
+                        VStack(alignment: .leading, spacing: 12) {
+                            sectionLabel("Account")
+                            HStack(alignment: .top, spacing: 14) {
+                                avatarView(for: p)
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text(p.fullName)
+                                        .font(Theme.Typography.title2())
+                                        .foregroundStyle(Theme.ColorToken.textPrimary)
+                                    Text("Member since \(p.memberSince.formatted(date: .abbreviated, time: .omitted))")
                                         .font(Theme.Typography.caption())
-                                        .foregroundStyle(Theme.ColorToken.accentTerracotta)
+                                        .foregroundStyle(Theme.ColorToken.textSecondary)
+                                    Text(p.email)
+                                        .font(Theme.Typography.caption())
+                                        .foregroundStyle(Theme.ColorToken.textTertiary)
+                                    Text("@\(p.username)")
+                                        .font(Theme.Typography.caption())
+                                        .foregroundStyle(Theme.ColorToken.textTertiary)
+                                    PhotosPicker(selection: $avatarPickerItem, matching: .images, photoLibrary: .shared()) {
+                                        Text("Change photo")
+                                            .font(Theme.Typography.caption())
+                                            .foregroundStyle(Theme.ColorToken.accentTerracotta)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .onChange(of: avatarPickerItem) { _, newItem in
+                                        Task { await importAvatar(from: newItem) }
+                                    }
                                 }
-                                .buttonStyle(.plain)
-                                .onChange(of: avatarPickerItem) { _, newItem in
-                                    Task { await importAvatar(from: newItem) }
-                                }
+                                Spacer(minLength: 0)
                             }
-                            Spacer(minLength: 0)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .id(avatarVersion)
 
-                    GlassCard { info("UCare ID", "@\(p.username)") }
-
                     GlassCard {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Your goals")
-                                .font(Theme.Typography.caption())
-                                .foregroundStyle(Theme.ColorToken.textSecondary)
+                            sectionLabel("Your program")
                             Text(p.careGoals.map(\.title).joined(separator: " · "))
                                 .font(Theme.Typography.subheadline())
                                 .foregroundStyle(Theme.ColorToken.textPrimary)
                                 .fixedSize(horizontal: false, vertical: true)
+                            Divider().opacity(0.2)
+                            infoRow("Diet style", p.dietStyle.title)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    GlassCard { info("Diet style", p.dietStyle.title) }
-                    GlassCard { info("Subscription", appState.hasActiveSubscription ? "UCare Plus active" : "Not subscribed") }
 
                     GlassCard {
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("Edit goals & program")
-                                .font(Theme.Typography.subheadline())
-                                .foregroundStyle(Theme.ColorToken.textSecondary)
+                            sectionLabel("Edit goals & program")
                             Text("Update your goals and baseline — we’ll rebuild your stack and show a fresh preview.")
                                 .font(Theme.Typography.caption())
                                 .foregroundStyle(Theme.ColorToken.textSecondary)
@@ -95,13 +96,13 @@ struct ProfileOverviewView: View {
                             }
                             .buttonStyle(.plain)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
+                    // MARK: Reminders
                     GlassCard {
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("Notifications")
-                                .font(Theme.Typography.subheadline())
-                                .foregroundStyle(Theme.ColorToken.textSecondary)
+                            sectionLabel("Reminders & notifications")
                             Toggle("Water rhythm", isOn: reminderBinding(\.wantsWaterReminders))
                                 .tint(Theme.ColorToken.accentTerracotta)
                             if appState.userProfile?.wantsWaterReminders == true {
@@ -129,17 +130,24 @@ struct ProfileOverviewView: View {
                                 DatePicker("Bedtime", selection: reminderDateBinding(\.reminderBedtimeMinutes), displayedComponents: .hourAndMinute)
                                     .tint(Theme.ColorToken.accentTerracotta)
                             }
-                            Text("When you allow notifications, UCare schedules local reminders from these times — no ads, no marketing.")
+                            Text("UCare schedules local reminders from these times — no ads, no marketing.")
                                 .font(Theme.Typography.caption())
                                 .foregroundStyle(Theme.ColorToken.textTertiary)
+                            Button {
+                                openSystemSettings()
+                            } label: {
+                                Label("Open Settings (notifications & Health)", systemImage: "gearshape")
+                                    .font(Theme.Typography.caption())
+                            }
+                            .buttonStyle(.plain)
+                            .foregroundStyle(Theme.ColorToken.accentTerracotta)
                         }
                     }
 
+                    // MARK: Apple Health
                     GlassCard {
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("Apple Health")
-                                .font(Theme.Typography.subheadline())
-                                .foregroundStyle(Theme.ColorToken.textSecondary)
+                            sectionLabel("Apple Health")
                             Toggle(isOn: Binding(
                                 get: { appState.userProfile?.syncAppleHealthEnabled ?? false },
                                 set: { v in Task { await appState.setAppleHealthBlendEnabled(v) } }
@@ -160,11 +168,56 @@ struct ProfileOverviewView: View {
                         }
                     }
 
+                    // MARK: Subscription
+                    GlassCard {
+                        VStack(alignment: .leading, spacing: 12) {
+                            sectionLabel("Subscription")
+                            Text(appState.hasActiveSubscription ? "UCare Plus is active on this device." : "You’re on the free tier — Day 1 stack only until you subscribe.")
+                                .font(Theme.Typography.caption())
+                                .foregroundStyle(Theme.ColorToken.textSecondary)
+                            Button {
+                                Task { await openManageSubscriptions() }
+                            } label: {
+                                Label("Manage in App Store", systemImage: "creditcard")
+                                    .font(Theme.Typography.subheadline())
+                            }
+                            .buttonStyle(.plain)
+                            .foregroundStyle(Theme.ColorToken.accentTerracotta)
+                            if let manageSubsMessage {
+                                Text(manageSubsMessage)
+                                    .font(Theme.Typography.caption())
+                                    .foregroundStyle(Theme.ColorToken.textTertiary)
+                            }
+                            Button {
+                                Task { await restorePurchasesTapped() }
+                            } label: {
+                                HStack {
+                                    if restoreBusy { ProgressView().scaleEffect(0.85) }
+                                    Text("Restore purchases")
+                                        .font(Theme.Typography.subheadline())
+                                }
+                            }
+                            .buttonStyle(.plain)
+                            .foregroundStyle(Theme.ColorToken.textPrimary)
+                            .disabled(restoreBusy)
+                            if let s = appState.storeStatusMessage, !s.isEmpty {
+                                Text(s)
+                                    .font(Theme.Typography.caption())
+                                    .foregroundStyle(Theme.ColorToken.textTertiary)
+                            }
+                            if !appState.hasActiveSubscription {
+                                GradientCTAButton(title: "Upgrade to Plus") {
+                                    appState.openPaywall()
+                                }
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+
+                    // MARK: History & data
                     GlassCard {
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("History & data")
-                                .font(Theme.Typography.subheadline())
-                                .foregroundStyle(Theme.ColorToken.textSecondary)
+                            sectionLabel("History & data")
                             Button("Every completed step") { showHistory = true }
                                 .font(Theme.Typography.subheadline())
                                 .foregroundStyle(Theme.ColorToken.textPrimary)
@@ -176,9 +229,7 @@ struct ProfileOverviewView: View {
 
                     GlassCard {
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("Refer & help")
-                                .font(Theme.Typography.subheadline())
-                                .foregroundStyle(Theme.ColorToken.textSecondary)
+                            sectionLabel("Refer & help")
                             ShareLink(item: URL(string: "https://apps.apple.com/app/ucare")!, subject: Text("Try UCare"), message: Text("Your body is the project — UCare is the program.")) {
                                 Label("Refer a friend", systemImage: "person.2.fill")
                                     .font(Theme.Typography.subheadline())
@@ -192,9 +243,7 @@ struct ProfileOverviewView: View {
 
                     GlassCard {
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("Privacy & controls")
-                                .font(Theme.Typography.headline())
-                                .foregroundStyle(Theme.ColorToken.textPrimary)
+                            sectionLabel("Privacy & media")
                             Text("Protocol, check-ins, and completions stay on this device. Photos you add in Progress or here are JPEGs in Application Support until encrypted sync ships.")
                                 .font(Theme.Typography.caption())
                                 .foregroundStyle(Theme.ColorToken.textSecondary)
@@ -211,40 +260,44 @@ struct ProfileOverviewView: View {
                         }
                     }
 
-                    if appState.hasActiveSubscription {
-                        GradientCTAButton(title: "Manage subscription (App Store)") {
-                            Task { await openManageSubscriptions() }
-                        }
-                        if let manageSubsMessage {
-                            Text(manageSubsMessage)
+                    // MARK: Session
+                    GlassCard {
+                        VStack(alignment: .leading, spacing: 14) {
+                            sectionLabel("Session")
+                            Text("Log out clears this device’s UCare data and returns you to sign-in. It does not cancel App Store subscriptions — use Manage in App Store above.")
                                 .font(Theme.Typography.caption())
                                 .foregroundStyle(Theme.ColorToken.textTertiary)
+                            GradientCTAButton(title: "Log out") {
+                                showLogoutConfirm = true
+                            }
+                            Button("Delete local account", role: .destructive) {
+                                showDeleteConfirm = true
+                            }
+                            .font(Theme.Typography.subheadline())
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                    } else {
-                        GradientCTAButton(title: "Upgrade to Plus") {
-                            appState.openPaywall()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                } else {
+                    GlassCard {
+                        VStack(alignment: .leading, spacing: 12) {
+                            sectionLabel("Profile unavailable")
+                            Text("We couldn’t load your saved profile. You can sign out and sign back in, or remove everything stored on this device.")
+                                .font(Theme.Typography.caption())
+                                .foregroundStyle(Theme.ColorToken.textSecondary)
+                            GradientCTAButton(title: "Log out & clear device") {
+                                showLogoutConfirm = true
+                            }
+                            Button("Delete local account only", role: .destructive) {
+                                showDeleteConfirm = true
+                            }
+                            .font(Theme.Typography.subheadline())
                         }
                     }
-
-                    GradientCTAButton(title: "Log out") {
-                        showLogoutConfirm = true
-                    }
-
-                    Button("Delete local account", role: .destructive) {
-                        showDeleteConfirm = true
-                    }
-                    .font(Theme.Typography.caption())
-                    .padding(.top, 4)
                 }
             }
             .padding(Theme.Layout.contentHorizontalPadding)
-            .opacity(profileVisible ? 1 : 0)
-            .offset(y: profileVisible ? 0 : 12)
-            .animation(LLGAnimation.entrance(reduceMotion: reduceMotion), value: profileVisible)
-            .animation(LLGAnimation.entrance(reduceMotion: reduceMotion), value: appState.userProfile?.username ?? "")
-        }
-        .onAppear {
-            withAnimation(LLGAnimation.entrance(reduceMotion: reduceMotion)) { profileVisible = true }
+            .padding(.bottom, 28)
         }
         .sheet(isPresented: $showHistory) {
             StepHistoryView()
@@ -288,8 +341,34 @@ struct ProfileOverviewView: View {
             }
             Button("Cancel", role: .cancel) { }
         } message: {
-            Text("Removes profile, completions, check-ins, photos, avatar, and subscription flags stored locally. This does not cancel App Store subscriptions — use Manage subscription or Settings → Subscriptions.")
+            Text("Removes profile, completions, check-ins, photos, avatar, and subscription flags stored locally. This does not cancel App Store subscriptions — use Manage in App Store or Settings → Subscriptions.")
         }
+    }
+
+    private func sectionLabel(_ title: String) -> some View {
+        Text(title.uppercased())
+            .font(Theme.Typography.caption())
+            .foregroundStyle(Theme.ColorToken.textSecondary)
+            .tracking(0.6)
+    }
+
+    private func infoRow(_ key: String, _ value: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(key).font(Theme.Typography.caption()).foregroundStyle(Theme.ColorToken.textTertiary)
+            Text(value).font(Theme.Typography.subheadline()).foregroundStyle(Theme.ColorToken.textPrimary)
+        }
+    }
+
+    private func openSystemSettings() {
+        guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+        UIApplication.shared.open(url)
+    }
+
+    @MainActor
+    private func restorePurchasesTapped() async {
+        restoreBusy = true
+        defer { restoreBusy = false }
+        await appState.restorePurchases()
     }
 
     @ViewBuilder
@@ -351,14 +430,6 @@ struct ProfileOverviewView: View {
             try data.write(to: url)
             exportDocument = ExportDocument(url: url)
         } catch { }
-    }
-
-    private func info(_ key: String, _ value: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(key).font(Theme.Typography.caption()).foregroundStyle(Theme.ColorToken.textSecondary)
-            Text(value).foregroundStyle(Theme.ColorToken.textPrimary)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func initials(for name: String) -> String {
