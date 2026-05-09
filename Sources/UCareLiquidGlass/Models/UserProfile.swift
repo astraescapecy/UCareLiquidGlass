@@ -24,8 +24,11 @@ struct UserProfile: Codable, Equatable {
     var reminderMorningMinutes: Int
     var reminderEveningMinutes: Int
     var reminderBedtimeMinutes: Int
-    /// How often to nudge water when rhythm is on (e.g. 120 = every 2h) — Phase 5 will schedule from this.
+    /// How often to nudge water when rhythm is on (e.g. 120 = every 2h); local notifications use this.
     var waterReminderIntervalMinutes: Int
+
+    /// When true, UCare reads dietary water + sleep from Apple Health to blend into Glow-Up (on-device only).
+    var syncAppleHealthEnabled: Bool
 
     var optedInFacePhoto: Bool
     var optedInHairPhoto: Bool
@@ -38,6 +41,7 @@ struct UserProfile: Codable, Equatable {
         case allergiesNote, routineNote, problemAreasNote, glowUpTargetDate
         case wantsWaterReminders, wantsMorningNudge, wantsEveningNudge, wantsBedtimeNudge
         case reminderMorningMinutes, reminderEveningMinutes, reminderBedtimeMinutes, waterReminderIntervalMinutes
+        case syncAppleHealthEnabled
         case optedInFacePhoto, optedInHairPhoto, optedInSkinPhoto, programSteps
         // Legacy (pre–UCare spec)
         case goal, heightCm, weightKg, targetWeightKg, timeline, activityLevel, dietaryPreferences
@@ -65,6 +69,7 @@ struct UserProfile: Codable, Equatable {
         reminderEveningMinutes: Int = 20 * 60 + 30,
         reminderBedtimeMinutes: Int = 22 * 60 + 30,
         waterReminderIntervalMinutes: Int = 120,
+        syncAppleHealthEnabled: Bool = false,
         optedInFacePhoto: Bool,
         optedInHairPhoto: Bool,
         optedInSkinPhoto: Bool,
@@ -90,6 +95,7 @@ struct UserProfile: Codable, Equatable {
         self.reminderEveningMinutes = reminderEveningMinutes
         self.reminderBedtimeMinutes = reminderBedtimeMinutes
         self.waterReminderIntervalMinutes = waterReminderIntervalMinutes
+        self.syncAppleHealthEnabled = syncAppleHealthEnabled
         self.optedInFacePhoto = optedInFacePhoto
         self.optedInHairPhoto = optedInHairPhoto
         self.optedInSkinPhoto = optedInSkinPhoto
@@ -129,6 +135,8 @@ struct UserProfile: Codable, Equatable {
         reminderBedtimeMinutes = try c.decodeIfPresent(Int.self, forKey: .reminderBedtimeMinutes) ?? (22 * 60 + 30)
         waterReminderIntervalMinutes = try c.decodeIfPresent(Int.self, forKey: .waterReminderIntervalMinutes) ?? 120
 
+        syncAppleHealthEnabled = try c.decodeIfPresent(Bool.self, forKey: .syncAppleHealthEnabled) ?? false
+
         optedInFacePhoto = try c.decodeIfPresent(Bool.self, forKey: .optedInFacePhoto) ?? false
         optedInHairPhoto = try c.decodeIfPresent(Bool.self, forKey: .optedInHairPhoto) ?? false
         optedInSkinPhoto = try c.decodeIfPresent(Bool.self, forKey: .optedInSkinPhoto) ?? false
@@ -158,6 +166,7 @@ struct UserProfile: Codable, Equatable {
         try c.encode(reminderEveningMinutes, forKey: .reminderEveningMinutes)
         try c.encode(reminderBedtimeMinutes, forKey: .reminderBedtimeMinutes)
         try c.encode(waterReminderIntervalMinutes, forKey: .waterReminderIntervalMinutes)
+        try c.encode(syncAppleHealthEnabled, forKey: .syncAppleHealthEnabled)
         try c.encode(optedInFacePhoto, forKey: .optedInFacePhoto)
         try c.encode(optedInHairPhoto, forKey: .optedInHairPhoto)
         try c.encode(optedInSkinPhoto, forKey: .optedInSkinPhoto)

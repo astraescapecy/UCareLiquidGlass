@@ -52,12 +52,17 @@ struct ProgressOverviewView: View {
                         Text("\(appState.glowUpScore())")
                             .font(.system(size: 56, weight: .bold, design: .rounded))
                             .foregroundStyle(Theme.ColorToken.textPrimary)
-                        Text("Blends last-7-day routine adherence, hydration steps you finish, this week’s self-ratings when you log them, and your streak. Missing a check-in doesn’t punish you.")
+                        Text("Blends last-7-day routine adherence, hydration steps you finish, this week’s self-ratings when you log them, and your streak. With Apple Health on (Profile), dietary water and sleep can nudge the score when enough recent days exist — on-device only.")
                             .font(Theme.Typography.caption())
                             .foregroundStyle(Theme.ColorToken.textTertiary)
                         Text("Hydration signal: \(Int(appState.hydrationAdherenceLast7Days() * 100))% of water-tagged steps completed (last 7 days).")
                             .font(Theme.Typography.caption())
                             .foregroundStyle(Theme.ColorToken.textTertiary)
+                        if appState.userProfile?.syncAppleHealthEnabled == true {
+                            Text("Apple Health blending is enabled — add water or sleep in the Health app so the score can reflect it.")
+                                .font(Theme.Typography.caption())
+                                .foregroundStyle(Theme.ColorToken.textTertiary)
+                        }
                     }
                 }
 
@@ -264,7 +269,7 @@ struct ProgressOverviewView: View {
                         Text("Coming next")
                             .font(Theme.Typography.headline())
                             .foregroundStyle(Theme.ColorToken.textPrimary)
-                        Text("Apple Health sleep + water sync (Phase 8), cloud backup, and encrypted photo storage.")
+                        Text("Cloud backup and encrypted photo storage — next on the roadmap.")
                             .font(Theme.Typography.caption())
                             .foregroundStyle(Theme.ColorToken.textSecondary)
                     }
@@ -274,6 +279,9 @@ struct ProgressOverviewView: View {
             .animation(LLGAnimation.entrance(reduceMotion: reduceMotion), value: appState.routineStreakDays())
             .animation(LLGAnimation.screenSpring(reduceMotion: reduceMotion), value: appState.weeklyCheckIns.count)
             .animation(LLGAnimation.screenSpring(reduceMotion: reduceMotion), value: photoVersion)
+        }
+        .task {
+            await appState.refreshAppleHealthIfEnabled()
         }
         .sheet(isPresented: $showWeeklyCheckIn) {
             WeeklyCheckInSheet()

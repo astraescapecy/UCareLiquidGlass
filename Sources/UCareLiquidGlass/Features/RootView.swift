@@ -25,6 +25,7 @@ struct RootView: View {
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active, appState.phase == .main {
                 Task { await UCareNotificationScheduler.refresh(appState: appState) }
+                Task { await appState.refreshAppleHealthIfEnabled() }
             }
         }
     }

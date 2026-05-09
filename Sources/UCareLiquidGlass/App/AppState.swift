@@ -16,6 +16,9 @@ final class AppState: ObservableObject {
     @Published var isRetakeProgramFlow = false
     @Published private(set) var storeProducts: [Product] = []
     @Published var storeStatusMessage: String?
+    @Published private(set) var healthWeekSnapshot: UCareHealthWeekSnapshot?
+    @Published var healthKitBanner: String?
+    @Published var healthKitBusy = false
 
     private let persistence = OnboardingPersistence()
 
@@ -156,6 +159,7 @@ final class AppState: ObservableObject {
             merged.optedInFacePhoto = built.optedInFacePhoto
             merged.optedInHairPhoto = built.optedInHairPhoto
             merged.optedInSkinPhoto = built.optedInSkinPhoto
+            merged.syncAppleHealthEnabled = existing.syncAppleHealthEnabled
             userProfile = merged
             persistence.saveProfile(merged)
             isRetakeProgramFlow = false
@@ -214,6 +218,7 @@ final class AppState: ObservableObject {
             reminderEveningMinutes: re,
             reminderBedtimeMinutes: rb,
             waterReminderIntervalMinutes: wi,
+            syncAppleHealthEnabled: userProfile?.syncAppleHealthEnabled ?? false,
             optedInFacePhoto: questionnaire.optedInFacePhoto,
             optedInHairPhoto: questionnaire.optedInHairPhoto,
             optedInSkinPhoto: questionnaire.optedInSkinPhoto,
@@ -298,6 +303,9 @@ final class AppState: ObservableObject {
 
     func logout() {
         UCareNotificationScheduler.cancelAll()
+        healthWeekSnapshot = nil
+        healthKitBanner = nil
+        healthKitBusy = false
         persistence.clearAll()
         WeeklyProgressPhotoStore.clearAll()
         ProfileAvatarStore.clear()
@@ -463,6 +471,50 @@ final class AppState: ObservableObject {
         return days.map { ($0, glowUpScore(on: $0)) }
     }
 
+    // MARK: - Apple Health (Phase 6)
+
+    func setAppleHealthBlendEnabled(_ enabled: Bool) async {
+        healthKitBanner = nil
+        if !enabled {
+            updateProfile { $0.syncAppleHealthEnabled = false }
+            healthWeekSnapshot = nil
+            return
+        }
+        guard UCareHealthMetrics.isDataAvailable() else {
+            healthKitBanner = "Apple Health isn’t available on this device."
+            return
+        }
+        healthKitBusy = true
+        defer { healthKitBusy = false }
+        do {
+            try await UCareHealthMetrics.requestReadAuthorization()
+        } catch {
+            healthKitBanner = "Couldn’t open Health permissions: \(error.localizedDescription)"
+            return
+        }
+        guard UCareHealthMetrics.readAccessLikelyGranted() else {
+            healthKitBanner = "Health access wasn’t granted. Enable UCare under Settings → Health → Data Access & Devices."
+            return
+        }
+        updateProfile { $0.syncAppleHealthEnabled = true }
+        await refreshAppleHealthIfEnabled(force: true)
+    }
+
+    func refreshAppleHealthIfEnabled(force: Bool = false) async {
+        guard phase == .main, userProfile?.syncAppleHealthEnabled == true else { return }
+        guard UCareHealthMetrics.isDataAvailable() else { return }
+        if !force, let snap = healthWeekSnapshot, Date().timeIntervalSince(snap.fetchedAt) < 900 { return }
+        do {
+            healthWeekSnapshot = try await UCareHealthMetrics.fetchWeekSnapshot()
+        } catch UCareHealthMetricsError.authorizationDenied {
+            healthKitBanner = "Health read access was revoked. Re-enable under Settings → Health → Data Access & Devices."
+            updateProfile { $0.syncAppleHealthEnabled = false }
+            healthWeekSnapshot = nil
+        } catch {
+            healthKitBanner = "Couldn’t read Health data: \(error.localizedDescription)"
+        }
+    }
+
     private func isHydrationStep(_ step: ProgramStep) -> Bool {
         let id = step.id.lowercased()
         if id.contains("hydrat") { return true }
@@ -488,7 +540,8 @@ final class AppState: ObservableObject {
 
     func glowUpScore(on reference: Date = .now) -> Int {
         let cal = Calendar.current
-        let days = (0..<7).compactMap { cal.date(byAdding: .day, value: -$0, to: reference) }
+        let sod = cal.startOfDay(for: reference)
+        let days = (0..<7).compactMap { cal.date(byAdding: .day, value: -$0, to: sod) }
         guard !days.isEmpty else { return 0 }
         let adherence = days.map { completionFraction(on: $0) }.reduce(0, +) / CGFloat(days.count)
 
@@ -501,17 +554,51 @@ final class AppState: ObservableObject {
             return CGFloat(entry.normalizedAverage)
         }()
 
-        let hyd = hydrationAdherenceLast7Days(reference: reference)
+        let hyd = blendedHydrationForGlow(reference: reference)
         let streak = routineStreakDays(reference: reference)
         let streakBoost = min(1, CGFloat(streak) / 10)
 
-        let blended: CGFloat = {
+        var blended: CGFloat = {
             if hasThisWeek {
                 return adherence * 0.38 + selfNorm * 0.32 + hyd * 0.18 + streakBoost * 0.12
             }
             return adherence * 0.62 + hyd * 0.22 + streakBoost * 0.16
         }()
 
+        if let sleepN = sleepGlowFactorLast7Days(reference: reference) {
+            blended = min(1, blended * 0.92 + sleepN * 0.08)
+        }
+
         return min(100, max(0, Int((blended * 100).rounded())))
+    }
+
+    private func blendedHydrationForGlow(reference: Date) -> CGFloat {
+        let steps = hydrationAdherenceLast7Days(reference: reference)
+        guard userProfile?.syncAppleHealthEnabled == true, let snap = healthWeekSnapshot else { return steps }
+        let cal = Calendar.current
+        let sod = cal.startOfDay(for: reference)
+        let windowDays = (0..<7).compactMap { cal.date(byAdding: .day, value: -$0, to: sod) }
+        var norms: [CGFloat] = []
+        for d in windowDays {
+            let liters = snap.waterLitersByStartOfDay[d] ?? 0
+            if liters > 0.05 { norms.append(min(1, CGFloat(liters / 2.3))) }
+        }
+        guard norms.count >= 3 else { return steps }
+        let avg = norms.reduce(0, +) / CGFloat(norms.count)
+        return min(1, steps * 0.5 + avg * 0.5)
+    }
+
+    private func sleepGlowFactorLast7Days(reference: Date) -> CGFloat? {
+        guard userProfile?.syncAppleHealthEnabled == true, let snap = healthWeekSnapshot else { return nil }
+        let cal = Calendar.current
+        let sod = cal.startOfDay(for: reference)
+        let windowDays = (0..<7).compactMap { cal.date(byAdding: .day, value: -$0, to: sod) }
+        var norms: [CGFloat] = []
+        for d in windowDays {
+            let h = snap.sleepHoursByStartOfDay[d] ?? 0
+            if h > 0.25 { norms.append(min(1, CGFloat(h / 7.5))) }
+        }
+        guard norms.count >= 3 else { return nil }
+        return norms.reduce(0, +) / CGFloat(norms.count)
     }
 }

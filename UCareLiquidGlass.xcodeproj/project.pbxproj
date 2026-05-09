@@ -54,6 +54,7 @@
 		DC6F6DA3F970EA2A6710E3E3 /* ProfileOverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDC3DFA3D42EB24A902C322A /* ProfileOverviewView.swift */; };
 		E01FDAC702C5130870B0F3FE /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B5A376E4BDE86D50B656AB /* UserProfile.swift */; };
 		E44BC2235A13942FCE81E858 /* AppPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4439496219E90C8D3EB4E943 /* AppPhase.swift */; };
+		E884110A12AEE5C810AEFC80 /* UCareHealthMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF0E8EF1EA0D859ADC3E9ABE /* UCareHealthMetrics.swift */; };
 		E9721DF16CA5A99E0BAC49B4 /* ProgressPhotoCompareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E2217168429258AE74D8E6 /* ProgressPhotoCompareSheet.swift */; };
 		F4B113BDD0231C33FC237495 /* UCareFocus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1797608A3F76C7B4547B449C /* UCareFocus.swift */; };
 		FD1F9E29FA44617CD22C746F /* GlassSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 987A51A068A75F95727A30DC /* GlassSurface.swift */; };
@@ -103,6 +104,7 @@
 		C71090A82E071AF1425F8E4A /* QuestionnaireDraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionnaireDraft.swift; sourceTree = "<group>"; };
 		C7F2559CE4B427A7551F96BB /* AIAnalysisLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAnalysisLoadingView.swift; sourceTree = "<group>"; };
 		C96BCEB5A67541561CE44D7D /* MicroConfettiBurstView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicroConfettiBurstView.swift; sourceTree = "<group>"; };
+		CB38A522CAFD790B1E2B337C /* UCareLiquidGlass.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = UCareLiquidGlass.entitlements; sourceTree = "<group>"; };
 		D0C557794B5666FC46CA42AF /* MeshBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshBackgroundView.swift; sourceTree = "<group>"; };
 		D97E413181E508A61D3A9706 /* ShimmerParticlesOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShimmerParticlesOverlay.swift; sourceTree = "<group>"; };
 		DC93FF77A7E0678C7FC7674C /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
@@ -112,6 +114,7 @@
 		E928D702A381F9F540B454A6 /* LogMealView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogMealView.swift; sourceTree = "<group>"; };
 		EDBAF21119883321B0A72FF5 /* LLGAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLGAnimation.swift; sourceTree = "<group>"; };
 		F32EBE3AFDE6EEBA3F614D85 /* MVPSectionMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MVPSectionMap.swift; sourceTree = "<group>"; };
+		FF0E8EF1EA0D859ADC3E9ABE /* UCareHealthMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UCareHealthMetrics.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -139,6 +142,7 @@
 				13735EA05C181ADE49DF6E45 /* OnboardingPersistence.swift */,
 				65D61F09DB6758238CA399B0 /* ProfileAvatarStore.swift */,
 				8007759C817331266360DB1A /* ProgramBuilder.swift */,
+				FF0E8EF1EA0D859ADC3E9ABE /* UCareHealthMetrics.swift */,
 				5A4B8340650EFBA0DCCD9870 /* UCareNotificationScheduler.swift */,
 				DECC9B89F0354F5B0A8E63E0 /* WeeklyProgressPhotoStore.swift */,
 			);
@@ -236,6 +240,7 @@
 		E1977F0E43F7E8A40BA1E93E /* Configuration */ = {
 			isa = PBXGroup;
 			children = (
+				CB38A522CAFD790B1E2B337C /* UCareLiquidGlass.entitlements */,
 				887878774DFA316773E7D0B5 /* UCareLiquidGlass.storekit */,
 			);
 			path = Configuration;
@@ -377,6 +382,7 @@
 				C4E6C0B9815D46A4E87FBDA9 /* Theme.swift in Sources */,
 				0559F99390181C48A5B2E78E /* TodayView.swift in Sources */,
 				F4B113BDD0231C33FC237495 /* UCareFocus.swift in Sources */,
+				E884110A12AEE5C810AEFC80 /* UCareHealthMetrics.swift in Sources */,
 				30BE37F64D9737708DAB3800 /* UCareLiquidGlassApp.swift in Sources */,
 				C1D3D003A8A07CB5AC2C1E72 /* UCareNotificationScheduler.swift in Sources */,
 				E01FDAC702C5130870B0F3FE /* UserProfile.swift in Sources */,
@@ -449,9 +455,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Configuration/UCareLiquidGlass.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = UCare;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "UCare can read dietary water and sleep from Apple Health to blend into your Glow-Up Score on this device. Nothing is uploaded to our servers.";
 				INFOPLIST_KEY_NSUserNotificationsUsageDescription = "UCare sends local reminders for water, routines, and gentle streak nudges you enable. No ads and no marketing pings.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -535,9 +543,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Configuration/UCareLiquidGlass.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = UCare;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "UCare can read dietary water and sleep from Apple Health to blend into your Glow-Up Score on this device. Nothing is uploaded to our servers.";
 				INFOPLIST_KEY_NSUserNotificationsUsageDescription = "UCare sends local reminders for water, routines, and gentle streak nudges you enable. No ads and no marketing pings.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

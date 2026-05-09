@@ -136,6 +136,31 @@ struct ProfileOverviewView: View {
                     }
 
                     GlassCard {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Apple Health")
+                                .font(Theme.Typography.subheadline())
+                                .foregroundStyle(Theme.ColorToken.textSecondary)
+                            Toggle(isOn: Binding(
+                                get: { appState.userProfile?.syncAppleHealthEnabled ?? false },
+                                set: { v in Task { await appState.setAppleHealthBlendEnabled(v) } }
+                            )) {
+                                Text("Blend water & sleep into Glow-Up")
+                                    .font(Theme.Typography.subheadline())
+                            }
+                            .disabled(appState.healthKitBusy)
+                            .tint(Theme.ColorToken.accentTerracotta)
+                            Text("Read-only on this device. UCare never uploads Health data.")
+                                .font(Theme.Typography.caption())
+                                .foregroundStyle(Theme.ColorToken.textTertiary)
+                            if let b = appState.healthKitBanner, !b.isEmpty {
+                                Text(b)
+                                    .font(Theme.Typography.caption())
+                                    .foregroundStyle(Theme.ColorToken.accentTerracotta)
+                            }
+                        }
+                    }
+
+                    GlassCard {
                         VStack(alignment: .leading, spacing: 10) {
                             Text("History & data")
                                 .font(Theme.Typography.subheadline())
