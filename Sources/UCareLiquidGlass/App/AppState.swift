@@ -167,6 +167,7 @@ final class AppState: ObservableObject {
         }
         persistence.saveDraft(questionnaire)
         phase = .main
+        rescheduleLocalNotifications()
     }
 
     func previewProfile() -> UserProfile? {
@@ -235,6 +236,7 @@ final class AppState: ObservableObject {
         if total > 0, ids.count >= total {
             persistence.setAchievementFlag("perfectDayEver", true)
         }
+        rescheduleLocalNotifications()
     }
 
     func isStepDone(_ id: String, on date: Date = .now) -> Bool {
@@ -295,6 +297,7 @@ final class AppState: ObservableObject {
     }
 
     func logout() {
+        UCareNotificationScheduler.cancelAll()
         persistence.clearAll()
         WeeklyProgressPhotoStore.clearAll()
         ProfileAvatarStore.clear()
@@ -412,6 +415,11 @@ final class AppState: ObservableObject {
         mutator(&p)
         userProfile = p
         persistence.saveProfile(p)
+        rescheduleLocalNotifications()
+    }
+
+    private func rescheduleLocalNotifications() {
+        Task { await UCareNotificationScheduler.refresh(appState: self) }
     }
 
     func submitWeeklyCheckIn(_ entry: WeeklyCheckInEntry) {

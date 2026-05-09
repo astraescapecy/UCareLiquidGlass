@@ -9,6 +9,7 @@ struct MainTabView: View {
         case profile
     }
 
+    @EnvironmentObject private var appState: AppState
     @State private var selectedTab: Tab = .today
 
     var body: some View {
@@ -36,6 +37,7 @@ struct MainTabView: View {
         .toolbarBackground(.visible, for: .tabBar)
         .onAppear {
             Self.applyLiquidGlassTabBarAppearance()
+            Task { await UCareNotificationScheduler.refresh(appState: appState) }
         }
     }
 

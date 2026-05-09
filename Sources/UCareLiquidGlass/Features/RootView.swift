@@ -4,6 +4,7 @@ struct RootView: View {
     @EnvironmentObject private var appState: AppState
     @EnvironmentObject private var parallax: ParallaxMotion
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         ZStack {
@@ -14,6 +15,18 @@ struct RootView: View {
                 .transition(reduceMotion ? .opacity : phaseTransition)
         }
         .animation(LLGAnimation.screenSpring(reduceMotion: reduceMotion), value: appState.phase)
+        .onChange(of: appState.phase) { _, newPhase in
+            if newPhase == .main {
+                Task { await UCareNotificationScheduler.refresh(appState: appState) }
+            } else {
+                UCareNotificationScheduler.cancelAll()
+            }
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active, appState.phase == .main {
+                Task { await UCareNotificationScheduler.refresh(appState: appState) }
+            }
+        }
     }
 
     private var phaseTransition: AnyTransition {

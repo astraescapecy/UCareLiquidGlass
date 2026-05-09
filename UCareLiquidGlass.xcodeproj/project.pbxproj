@@ -45,6 +45,7 @@
 		B18E9BCC3B19929CC7121242 /* MeshBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C557794B5666FC46CA42AF /* MeshBackgroundView.swift */; };
 		B8153071A3E18CE1BB6FB796 /* DiscoverFeedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17493CB3F59D6762814020D0 /* DiscoverFeedItem.swift */; };
 		B92C9B1159DDC72A04FC7A3E /* GetStartedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA050341FADF1DDF033344D /* GetStartedView.swift */; };
+		C1D3D003A8A07CB5AC2C1E72 /* UCareNotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4B8340650EFBA0DCCD9870 /* UCareNotificationScheduler.swift */; };
 		C395C284F2D8804B861C1AE3 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7D04D00F9B47A291911242 /* MainTabView.swift */; };
 		C473633626BADD391A023E82 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9378089A5354D9A82026BDE0 /* Enums.swift */; };
 		C4E6C0B9815D46A4E87FBDA9 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3578A27C5A2C77D64E9D6B3 /* Theme.swift */; };
@@ -80,6 +81,7 @@
 		48F7B87DA22D1CA5B733C0B2 /* CalorieRingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalorieRingView.swift; sourceTree = "<group>"; };
 		53179AC0FD8C4203D11653C6 /* TDEECalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDEECalculator.swift; sourceTree = "<group>"; };
 		55E76B0B9C119397DDBDA10A /* SignUpDraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpDraft.swift; sourceTree = "<group>"; };
+		5A4B8340650EFBA0DCCD9870 /* UCareNotificationScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UCareNotificationScheduler.swift; sourceTree = "<group>"; };
 		65A659DC54E5C2CAC6A16D81 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		65D61F09DB6758238CA399B0 /* ProfileAvatarStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileAvatarStore.swift; sourceTree = "<group>"; };
 		6C26510E529375A55FA56479 /* GradientCTAButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientCTAButton.swift; sourceTree = "<group>"; };
@@ -137,6 +139,7 @@
 				13735EA05C181ADE49DF6E45 /* OnboardingPersistence.swift */,
 				65D61F09DB6758238CA399B0 /* ProfileAvatarStore.swift */,
 				8007759C817331266360DB1A /* ProgramBuilder.swift */,
+				5A4B8340650EFBA0DCCD9870 /* UCareNotificationScheduler.swift */,
 				DECC9B89F0354F5B0A8E63E0 /* WeeklyProgressPhotoStore.swift */,
 			);
 			path = Services;
@@ -375,6 +378,7 @@
 				0559F99390181C48A5B2E78E /* TodayView.swift in Sources */,
 				F4B113BDD0231C33FC237495 /* UCareFocus.swift in Sources */,
 				30BE37F64D9737708DAB3800 /* UCareLiquidGlassApp.swift in Sources */,
+				C1D3D003A8A07CB5AC2C1E72 /* UCareNotificationScheduler.swift in Sources */,
 				E01FDAC702C5130870B0F3FE /* UserProfile.swift in Sources */,
 				8607EA1E610740D0E22C39A5 /* WeeklyCheckInEntry.swift in Sources */,
 				29B00E0D1BBC42AB435858DD /* WeeklyCheckInSheet.swift in Sources */,
@@ -448,6 +452,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = UCare;
+				INFOPLIST_KEY_NSUserNotificationsUsageDescription = "UCare sends local reminders for water, routines, and gentle streak nudges you enable. No ads and no marketing pings.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;
@@ -533,6 +538,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = UCare;
+				INFOPLIST_KEY_NSUserNotificationsUsageDescription = "UCare sends local reminders for water, routines, and gentle streak nudges you enable. No ads and no marketing pings.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;

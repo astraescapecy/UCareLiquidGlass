@@ -129,7 +129,7 @@ struct ProfileOverviewView: View {
                                 DatePicker("Bedtime", selection: reminderDateBinding(\.reminderBedtimeMinutes), displayedComponents: .hourAndMinute)
                                     .tint(Theme.ColorToken.accentTerracotta)
                             }
-                            Text("System notification permission ships in Phase 5 — times are stored now so scheduling can use them.")
+                            Text("When you allow notifications, UCare schedules local reminders from these times — no ads, no marketing.")
                                 .font(Theme.Typography.caption())
                                 .foregroundStyle(Theme.ColorToken.textTertiary)
                         }
