@@ -1,95 +1,68 @@
 import SwiftUI
+import UIKit
 
+/// Phase 1 shell: native three-tab `TabView` (Today · Progress · Profile) with liquid-glass tab chrome.
+/// Today hosts the routine checklist; Progress/Profile reuse the richer views already built for later phases.
 struct MainTabView: View {
-    enum Tab: String, CaseIterable { case today, progress, profile }
+    enum Tab: Hashable {
+        case today
+        case progress
+        case profile
+    }
 
-    @State private var tab: Tab = .today
-    @State private var bounceTab: Tab = .today
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var selectedTab: Tab = .today
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            Group {
-                switch tab {
-                case .today: TodayView()
-                case .progress: ProgressOverviewView()
-                case .profile: ProfileOverviewView()
+        TabView(selection: $selectedTab) {
+            TodayView()
+                .tabItem {
+                    Label("Today", systemImage: "sun.max.fill")
                 }
-            }
-            .padding(.bottom, Theme.Layout.tabBarHeight + 22)
+                .tag(Tab.today)
 
-            HStack(alignment: .center, spacing: 0) {
-                sideTab(.today, icon: "sun.max.fill", label: "Today")
-                Spacer(minLength: 12)
-                centerProgressTab
-                Spacer(minLength: 12)
-                sideTab(.profile, icon: "person.fill", label: "Profile")
-            }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 10)
-            .background(
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .fill(.thinMaterial)
-            )
-            .overlay {
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .strokeBorder(Theme.ColorToken.glassStroke, lineWidth: 1)
-            }
-            .padding(.horizontal, Theme.Layout.contentHorizontalPadding)
-            .padding(.bottom, 10)
+            ProgressOverviewView()
+                .tabItem {
+                    Label("Progress", systemImage: "chart.line.uptrend.xyaxis")
+                }
+                .tag(Tab.progress)
+
+            ProfileOverviewView()
+                .tabItem {
+                    Label("Profile", systemImage: "person.fill")
+                }
+                .tag(Tab.profile)
+        }
+        .tint(Theme.ColorToken.accentTerracotta)
+        .toolbarBackground(.ultraThinMaterial, for: .tabBar)
+        .toolbarBackground(.visible, for: .tabBar)
+        .onAppear {
+            Self.applyLiquidGlassTabBarAppearance()
         }
     }
 
-    private func sideTab(_ target: Tab, icon: String, label: String) -> some View {
-        let on = tab == target
-        return Button {
-            withAnimation(LLGAnimation.screenSpring(reduceMotion: reduceMotion)) {
-                tab = target
-                bounceTab = target
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.16) {
-                bounceTab = tab
-            }
-        } label: {
-            VStack(spacing: 4) {
-                Image(systemName: icon)
-                    .font(.system(size: 18, weight: .semibold))
-                    .scaleEffect(on ? (bounceTab == target ? 1.12 : 1.06) : 1)
-                Text(label)
-                    .font(Theme.Typography.caption())
-                Circle().fill(on ? Theme.ColorToken.accentTerracotta : Color.clear).frame(width: 5, height: 5)
-            }
-            .foregroundStyle(on ? Theme.ColorToken.textPrimary : Theme.ColorToken.textSecondary)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 6)
-        }
-        .buttonStyle(GlassCapsuleButtonStyle())
-    }
+    /// Matches the app’s warm glass look on the system tab bar (UIKit appearance API).
+    private static func applyLiquidGlassTabBarAppearance() {
+        let appearance = UITabBarAppearance()
+        appearance.configureWithTransparentBackground()
+        appearance.backgroundColor = UIColor(Theme.ColorToken.backgroundBase).withAlphaComponent(0.35)
+        appearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterialDark)
 
-    private var centerProgressTab: some View {
-        let on = tab == .progress
-        return Button {
-            withAnimation(LLGAnimation.screenSpring(reduceMotion: reduceMotion)) {
-                tab = .progress
-                bounceTab = .progress
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.16) {
-                bounceTab = tab
-            }
-        } label: {
-            ZStack {
-                Circle()
-                    .fill(Theme.ctaGradient.opacity(on ? 0.95 : 0.55))
-                    .frame(width: 58, height: 58)
-                    .shadow(color: Theme.ColorToken.glowWarm.opacity(on ? 0.9 : 0.35), radius: on ? 18 : 10, y: 6)
-                Image(systemName: "chart.line.uptrend.xyaxis")
-                    .font(.system(size: 22, weight: .bold))
-                    .foregroundStyle(Color.white)
-                    .scaleEffect(on ? (bounceTab == .progress ? 1.08 : 1.02) : 1)
-            }
-            .accessibilityLabel("Progress")
-        }
-        .buttonStyle(GlassCapsuleButtonStyle())
-        .offset(y: on ? -4 : -2)
+        let terracotta = UIColor(red: 184 / 255, green: 107 / 255, blue: 82 / 255, alpha: 1)
+        let muted = UIColor(white: 1, alpha: 0.42)
+
+        let itemAppearance = UITabBarItemAppearance()
+        itemAppearance.normal.iconColor = muted
+        itemAppearance.normal.titleTextAttributes = [.foregroundColor: muted]
+        itemAppearance.selected.iconColor = terracotta
+        itemAppearance.selected.titleTextAttributes = [.foregroundColor: terracotta]
+
+        appearance.stackedLayoutAppearance = itemAppearance
+        appearance.inlineLayoutAppearance = itemAppearance
+        appearance.compactInlineLayoutAppearance = itemAppearance
+
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+        UITabBar.appearance().tintColor = terracotta
+        UITabBar.appearance().unselectedItemTintColor = muted
     }
 }
