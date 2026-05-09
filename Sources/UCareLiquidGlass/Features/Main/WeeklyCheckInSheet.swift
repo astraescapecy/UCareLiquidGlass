@@ -11,6 +11,7 @@ struct WeeklyCheckInSheet: View {
     @State private var hairScalp = 3.0
     @State private var energy = 3.0
     @State private var mood = 3.0
+    @State private var sexDrive = 3.0
     @State private var sleepQuality = 3.0
     @State private var gutComfort = 3.0
     @State private var intimateConfidence = 3.0
@@ -36,6 +37,7 @@ struct WeeklyCheckInSheet: View {
                             sliderRow("Hair / scalp", value: $hairScalp)
                             sliderRow("Energy", value: $energy)
                             sliderRow("Mood", value: $mood)
+                            sliderRow("Sex drive", value: $sexDrive)
                             sliderRow("Sleep quality", value: $sleepQuality)
                             sliderRow("Gut comfort", value: $gutComfort)
                             sliderRow("Intimate confidence", value: $intimateConfidence)
@@ -68,6 +70,7 @@ struct WeeklyCheckInSheet: View {
                 hairScalp = Double(existing.hairScalp)
                 energy = Double(existing.energy)
                 mood = Double(existing.mood)
+                sexDrive = Double(existing.sexDrive)
                 sleepQuality = Double(existing.sleepQuality)
                 gutComfort = Double(existing.gutComfort)
                 intimateConfidence = Double(existing.intimateConfidence)
@@ -102,6 +105,7 @@ struct WeeklyCheckInSheet: View {
             hairScalp: WeeklyCheckInEntry.clampRating(Int(hairScalp.rounded())),
             energy: WeeklyCheckInEntry.clampRating(Int(energy.rounded())),
             mood: WeeklyCheckInEntry.clampRating(Int(mood.rounded())),
+            sexDrive: WeeklyCheckInEntry.clampRating(Int(sexDrive.rounded())),
             sleepQuality: WeeklyCheckInEntry.clampRating(Int(sleepQuality.rounded())),
             gutComfort: WeeklyCheckInEntry.clampRating(Int(gutComfort.rounded())),
             intimateConfidence: WeeklyCheckInEntry.clampRating(Int(intimateConfidence.rounded()))

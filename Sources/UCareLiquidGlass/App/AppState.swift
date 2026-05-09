@@ -272,6 +272,7 @@ final class AppState: ObservableObject {
 
     func logout() {
         persistence.clearAll()
+        WeeklyProgressPhotoStore.clearAll()
         isSubscribed = false
         signUpDraft = .init()
         questionnaire = .init()
@@ -422,6 +423,36 @@ final class AppState: ObservableObject {
         ]
     }
 
+    func glowScoreTrendLast7Days(reference: Date = .now) -> [(date: Date, score: Int)] {
+        let cal = Calendar.current
+        let end = cal.startOfDay(for: reference)
+        let days = (0..<7).compactMap { cal.date(byAdding: .day, value: -6 + $0, to: end) }
+        return days.map { ($0, glowUpScore(on: $0)) }
+    }
+
+    private func isHydrationStep(_ step: ProgramStep) -> Bool {
+        let id = step.id.lowercased()
+        if id.contains("hydrat") { return true }
+        if id.contains("water") { return true }
+        let t = step.title.lowercased()
+        return t.contains("hydrat") || (t.contains("water") && !t.contains("face"))
+    }
+
+    /// 0…1 average completion of hydration-tagged steps over the last 7 days (1 if none in program).
+    func hydrationAdherenceLast7Days(reference: Date = .now) -> CGFloat {
+        let cal = Calendar.current
+        let days = (0..<7).compactMap { cal.date(byAdding: .day, value: -$0, to: cal.startOfDay(for: reference)) }
+        var parts: [CGFloat] = []
+        for day in days {
+            let hyd = visibleProgramSteps(on: day).filter { isHydrationStep($0) }
+            guard !hyd.isEmpty else { continue }
+            let done = hyd.filter { isStepDone($0.id, on: day) }.count
+            parts.append(CGFloat(done) / CGFloat(hyd.count))
+        }
+        guard !parts.isEmpty else { return 1 }
+        return parts.reduce(0, +) / CGFloat(parts.count)
+    }
+
     func glowUpScore(on reference: Date = .now) -> Int {
         let cal = Calendar.current
         let days = (0..<7).compactMap { cal.date(byAdding: .day, value: -$0, to: reference) }
@@ -437,9 +468,16 @@ final class AppState: ObservableObject {
             return CGFloat(entry.normalizedAverage)
         }()
 
-        let blended: CGFloat = hasThisWeek
-            ? adherence * 0.52 + selfNorm * 0.48
-            : adherence * 0.88 + 0.12
+        let hyd = hydrationAdherenceLast7Days(reference: reference)
+        let streak = routineStreakDays(reference: reference)
+        let streakBoost = min(1, CGFloat(streak) / 10)
+
+        let blended: CGFloat = {
+            if hasThisWeek {
+                return adherence * 0.38 + selfNorm * 0.32 + hyd * 0.18 + streakBoost * 0.12
+            }
+            return adherence * 0.62 + hyd * 0.22 + streakBoost * 0.16
+        }()
 
         return min(100, max(0, Int((blended * 100).rounded())))
     }

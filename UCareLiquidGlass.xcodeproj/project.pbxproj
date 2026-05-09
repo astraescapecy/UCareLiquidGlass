@@ -22,6 +22,7 @@
 		41DA9C5754385C1480982523 /* ProgressOverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B1C63710EE235B7063D181F /* ProgressOverviewView.swift */; };
 		466A46853C4071B23BFC92F2 /* ProgressPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEEBC72831B4C6C836AC637 /* ProgressPlaceholderView.swift */; };
 		50DAB9FFF4CE6218AFBA277D /* HelpFAQView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45DE5AB956DD154A0E4AB93C /* HelpFAQView.swift */; };
+		51B00BF19DCE8DABD8614F1C /* WeeklyProgressPhotoStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DECC9B89F0354F5B0A8E63E0 /* WeeklyProgressPhotoStore.swift */; };
 		5224E701786BF41BAEBD2369 /* OnboardingPersistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13735EA05C181ADE49DF6E45 /* OnboardingPersistence.swift */; };
 		5332B5390EAAFD1C6A3B0952 /* TDEECalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53179AC0FD8C4203D11653C6 /* TDEECalculator.swift */; };
 		59C49D2701BCAF36BAA35FB5 /* ParallaxMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4825EA6AA8610FB3EA59B1EE /* ParallaxMotion.swift */; };
@@ -41,6 +42,7 @@
 		A61A85C767281EEA6170E39F /* ProgramBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8007759C817331266360DB1A /* ProgramBuilder.swift */; };
 		AEB39E1309158D428D8E0EBD /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8482B0DFB12A4F5A312993C0 /* SplashView.swift */; };
 		B18E9BCC3B19929CC7121242 /* MeshBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C557794B5666FC46CA42AF /* MeshBackgroundView.swift */; };
+		B8153071A3E18CE1BB6FB796 /* DiscoverFeedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17493CB3F59D6762814020D0 /* DiscoverFeedItem.swift */; };
 		B92C9B1159DDC72A04FC7A3E /* GetStartedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA050341FADF1DDF033344D /* GetStartedView.swift */; };
 		C395C284F2D8804B861C1AE3 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7D04D00F9B47A291911242 /* MainTabView.swift */; };
 		C473633626BADD391A023E82 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9378089A5354D9A82026BDE0 /* Enums.swift */; };
@@ -50,6 +52,7 @@
 		DC6F6DA3F970EA2A6710E3E3 /* ProfileOverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDC3DFA3D42EB24A902C322A /* ProfileOverviewView.swift */; };
 		E01FDAC702C5130870B0F3FE /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B5A376E4BDE86D50B656AB /* UserProfile.swift */; };
 		E44BC2235A13942FCE81E858 /* AppPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4439496219E90C8D3EB4E943 /* AppPhase.swift */; };
+		E9721DF16CA5A99E0BAC49B4 /* ProgressPhotoCompareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E2217168429258AE74D8E6 /* ProgressPhotoCompareSheet.swift */; };
 		F4B113BDD0231C33FC237495 /* UCareFocus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1797608A3F76C7B4547B449C /* UCareFocus.swift */; };
 		FD1F9E29FA44617CD22C746F /* GlassSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 987A51A068A75F95727A30DC /* GlassSurface.swift */; };
 /* End PBXBuildFile section */
@@ -57,9 +60,11 @@
 /* Begin PBXFileReference section */
 		00C7D0DAF4DD4C8A84D48FB9 /* UCareLiquidGlass.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = UCareLiquidGlass.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		00D5DB1E5DDE6A9BB6D26419 /* DiscoverLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverLibraryView.swift; sourceTree = "<group>"; };
+		01E2217168429258AE74D8E6 /* ProgressPhotoCompareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressPhotoCompareSheet.swift; sourceTree = "<group>"; };
 		13525C99BD2C8A480615D1FF /* QuestionnaireFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionnaireFlowView.swift; sourceTree = "<group>"; };
 		13735EA05C181ADE49DF6E45 /* OnboardingPersistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPersistence.swift; sourceTree = "<group>"; };
 		1692FC4B19F506D58115511B /* GuidedStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuidedStepView.swift; sourceTree = "<group>"; };
+		17493CB3F59D6762814020D0 /* DiscoverFeedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverFeedItem.swift; sourceTree = "<group>"; };
 		1797608A3F76C7B4547B449C /* UCareFocus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UCareFocus.swift; sourceTree = "<group>"; };
 		1BED99482F41D5787ABA286A /* ProfilePlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePlaceholderView.swift; sourceTree = "<group>"; };
 		27CD01D259A82242BE43C357 /* WeeklyCheckInEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyCheckInEntry.swift; sourceTree = "<group>"; };
@@ -98,6 +103,7 @@
 		D97E413181E508A61D3A9706 /* ShimmerParticlesOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShimmerParticlesOverlay.swift; sourceTree = "<group>"; };
 		DC93FF77A7E0678C7FC7674C /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		DD7D04D00F9B47A291911242 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		DECC9B89F0354F5B0A8E63E0 /* WeeklyProgressPhotoStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyProgressPhotoStore.swift; sourceTree = "<group>"; };
 		E3578A27C5A2C77D64E9D6B3 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		E928D702A381F9F540B454A6 /* LogMealView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogMealView.swift; sourceTree = "<group>"; };
 		EDBAF21119883321B0A72FF5 /* LLGAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLGAnimation.swift; sourceTree = "<group>"; };
@@ -128,6 +134,7 @@
 				A2FBCB6B6B137A8123471966 /* AppProgramServices.swift */,
 				13735EA05C181ADE49DF6E45 /* OnboardingPersistence.swift */,
 				8007759C817331266360DB1A /* ProgramBuilder.swift */,
+				DECC9B89F0354F5B0A8E63E0 /* WeeklyProgressPhotoStore.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -135,6 +142,7 @@
 		880D7893676585DA07A8C781 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				17493CB3F59D6762814020D0 /* DiscoverFeedItem.swift */,
 				9378089A5354D9A82026BDE0 /* Enums.swift */,
 				85810177BD195A25FE24E988 /* PaywallPlan.swift */,
 				C71090A82E071AF1425F8E4A /* QuestionnaireDraft.swift */,
@@ -186,6 +194,7 @@
 				BDC3DFA3D42EB24A902C322A /* ProfileOverviewView.swift */,
 				1BED99482F41D5787ABA286A /* ProfilePlaceholderView.swift */,
 				3B1C63710EE235B7063D181F /* ProgressOverviewView.swift */,
+				01E2217168429258AE74D8E6 /* ProgressPhotoCompareSheet.swift */,
 				9FEEBC72831B4C6C836AC637 /* ProgressPlaceholderView.swift */,
 				BACBB7FA3981F2CC9CB54102 /* StepHistoryView.swift */,
 				47D62F40A261CA376B9491ED /* TodayView.swift */,
@@ -323,6 +332,7 @@
 				35D8A58AF946D9A5FE9EB031 /* AppProgramServices.swift in Sources */,
 				5DAA40EC53EE44ADCA17CB64 /* AppState.swift in Sources */,
 				649EB6A7EE9ED0792A71FC2F /* CalorieRingView.swift in Sources */,
+				B8153071A3E18CE1BB6FB796 /* DiscoverFeedItem.swift in Sources */,
 				2C0E1AFD3F787B777241A105 /* DiscoverLibraryView.swift in Sources */,
 				C473633626BADD391A023E82 /* Enums.swift in Sources */,
 				B92C9B1159DDC72A04FC7A3E /* GetStartedView.swift in Sources */,
@@ -346,6 +356,7 @@
 				3B2A3B7427A7698C357A827B /* ProfilePlaceholderView.swift in Sources */,
 				A61A85C767281EEA6170E39F /* ProgramBuilder.swift in Sources */,
 				41DA9C5754385C1480982523 /* ProgressOverviewView.swift in Sources */,
+				E9721DF16CA5A99E0BAC49B4 /* ProgressPhotoCompareSheet.swift in Sources */,
 				466A46853C4071B23BFC92F2 /* ProgressPlaceholderView.swift in Sources */,
 				D35BE41B15F62645CA7585FD /* QuestionnaireDraft.swift in Sources */,
 				7995B3D923DCD4014B4B2635 /* QuestionnaireFlowView.swift in Sources */,
@@ -363,6 +374,7 @@
 				E01FDAC702C5130870B0F3FE /* UserProfile.swift in Sources */,
 				8607EA1E610740D0E22C39A5 /* WeeklyCheckInEntry.swift in Sources */,
 				29B00E0D1BBC42AB435858DD /* WeeklyCheckInSheet.swift in Sources */,
+				51B00BF19DCE8DABD8614F1C /* WeeklyProgressPhotoStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

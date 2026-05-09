@@ -1,0 +1,34 @@
+{
+  "items": [
+    {
+      "category": "Protocols",
+      "title": "7-Day Smell Reset",
+      "summary": "Structured stacks you can start when odor confidence dips — hygiene, fabrics, hydration, sleep."
+    },
+    {
+      "category": "Protocols",
+      "title": "Glow Skin in 14 Days",
+      "summary": "Barrier-first cadence: cleanse, moisturize, SPF, and gentle actives — no miracle claims, just consistency."
+    },
+    {
+      "category": "Ingredient guides",
+      "title": "Why pineapple shows up",
+      "summary": "Enzymes, fiber, and what is evidence-based versus wellness lore — short read with sources."
+    },
+    {
+      "category": "Mini-courses",
+      "title": "Why you smell (and how to fix it)",
+      "summary": "Hygiene, diet, sleep, and fabrics — practical modules you can finish in a lunch break."
+    },
+    {
+      "category": "Recipes",
+      "title": "Hydration-forward drinks",
+      "summary": "Electrolyte basics, herbal iced teas, and when to skip trendy detox drinks."
+    },
+    {
+      "category": "Mini-courses",
+      "title": "Breath confidence 101",
+      "summary": "Dry mouth, morning breath, and when to loop in a dentist — calm, non-shame framing."
+    }
+  ]
+}

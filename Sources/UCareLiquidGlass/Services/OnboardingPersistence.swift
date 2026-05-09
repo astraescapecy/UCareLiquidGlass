@@ -1,6 +1,6 @@
 import Foundation
 
-// MVP privacy posture: protocol + check-ins + per-day completions live in UserDefaults; no ads SDKs. Photo pixels are not persisted yet — only opt-in flags on `UserProfile` until encrypted file storage ships.
+// MVP privacy posture: protocol + check-ins + per-day completions live in UserDefaults; no ads SDKs. Weekly Progress selfies live as JPEGs under Application Support (Phase 3) until encrypted sync ships.
 
 final class OnboardingPersistence {
     private enum Key {

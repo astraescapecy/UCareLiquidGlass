@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-/// Phase 1 — Three-tab navigation: `TabView` with Today (checklist), stub Progress, stub Profile; glass tab chrome.
+/// Phase 1–3 — `TabView`: Today (routine), Progress (Glow-Up + charts + photos + Discover), Profile stub; glass tab chrome.
 struct MainTabView: View {
     enum Tab: Hashable {
         case today
@@ -19,7 +19,7 @@ struct MainTabView: View {
                 }
                 .tag(Tab.today)
 
-            ProgressPlaceholderView()
+            ProgressOverviewView()
                 .tabItem {
                     Label("Progress", systemImage: "chart.line.uptrend.xyaxis")
                 }
