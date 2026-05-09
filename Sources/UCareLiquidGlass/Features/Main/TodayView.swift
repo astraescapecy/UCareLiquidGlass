@@ -8,34 +8,38 @@ struct TodayView: View {
     @State private var expandedScience: Set<String> = []
     @State private var guidedStep: ProgramStep?
     @State private var showDayComplete = false
+    @State private var confettiTrigger: UUID?
     @AppStorage("ucare.lastDayCompleteBanner") private var lastDayCompleteKey: String = ""
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                weekStrip
+        ZStack(alignment: .top) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    weekStrip
 
-                if let gentle = missedDayGentleLine {
+                    completionHero
+
+                    if let gentle = missedDayGentleLine {
                     Text(gentle)
                         .font(Theme.Typography.caption())
                         .foregroundStyle(Theme.ColorToken.accentSand)
                         .padding(12)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(RoundedRectangle(cornerRadius: 14).fill(.ultraThinMaterial))
-                }
+                    }
 
-                Text("Hey, \(firstName)")
+                    Text("Hey, \(firstName)")
                     .font(Theme.Typography.subheadline())
-                    .foregroundStyle(Theme.ColorToken.textSecondary)
+                        .foregroundStyle(Theme.ColorToken.textSecondary)
 
-                Text(headerTitle)
+                    Text(headerTitle)
                     .font(Theme.Typography.largeTitle())
-                    .foregroundStyle(Theme.ColorToken.textPrimary)
-                Text(subheaderDateLine)
+                        .foregroundStyle(Theme.ColorToken.textPrimary)
+                    Text(subheaderDateLine)
                     .font(Theme.Typography.subheadline())
-                    .foregroundStyle(Theme.ColorToken.textSecondary)
+                        .foregroundStyle(Theme.ColorToken.textSecondary)
 
-                if !appState.hasActiveSubscription {
+                    if !appState.hasActiveSubscription {
                     GlassCard(cornerRadius: 16) {
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Free preview")
@@ -48,16 +52,14 @@ struct TodayView: View {
                                 .font(Theme.Typography.caption())
                                 .foregroundStyle(Theme.ColorToken.accentTerracotta)
                         }
+                        }
                     }
-                }
 
-                completionHero
-
-                Text("Today’s stack")
+                    Text("Today’s stack")
                     .font(Theme.Typography.headline())
-                    .foregroundStyle(Theme.ColorToken.textPrimary)
+                        .foregroundStyle(Theme.ColorToken.textPrimary)
 
-                if !stepsForSelectedDay.isEmpty {
+                    if !stepsForSelectedDay.isEmpty {
                     ForEach(DaySegment.orderedForToday) { segment in
                         let segSteps = stepsForSelectedDay.filter { $0.segment == segment }
                         if !segSteps.isEmpty {
@@ -86,10 +88,20 @@ struct TodayView: View {
             .offset(y: entered ? 0 : 16)
             .animation(LLGAnimation.entrance(reduceMotion: reduceMotion), value: entered)
             .animation(LLGAnimation.entrance(reduceMotion: reduceMotion), value: appState.completedStepIDs)
+            }
+
+            if let burst = confettiTrigger {
+                MicroConfettiBurstView()
+                    .id(burst)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 200)
+                    .padding(.top, 72)
+                    .allowsHitTesting(false)
+            }
         }
         .sheet(item: $guidedStep) { step in
             GuidedStepView(step: step) {
-                appState.toggleStep(step.id, on: selectedDate)
+                toggleStepWithConfetti(step.id, on: selectedDate)
                 guidedStep = nil
                 checkDayCompleteCelebration()
             }
@@ -104,6 +116,26 @@ struct TodayView: View {
         }
         .onChange(of: appState.completedStepIDs) { _, _ in
             checkDayCompleteCelebration()
+        }
+    }
+
+    /// Marks a step complete / incomplete; fires micro-confetti when transitioning to done (Phase 2).
+    private func toggleStepWithConfetti(_ stepID: String, on date: Date) {
+        let wasDone = appState.isStepDone(stepID, on: date)
+        appState.toggleStep(stepID, on: date)
+        let nowDone = appState.isStepDone(stepID, on: date)
+        if !wasDone, nowDone {
+            playStepConfetti()
+        }
+    }
+
+    private func playStepConfetti() {
+        let id = UUID()
+        confettiTrigger = id
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+            if confettiTrigger == id {
+                confettiTrigger = nil
+            }
         }
     }
 
@@ -126,7 +158,7 @@ struct TodayView: View {
             selectedDate = day
         } label: {
             VStack(spacing: 6) {
-                Text(day, format: .dateTime.weekday(.narrow))
+                Text(day.formatted(.dateTime.weekday(.abbreviated)))
                     .font(Theme.Typography.caption())
                     .foregroundStyle(Theme.ColorToken.textSecondary)
                 Text(day, format: .dateTime.day())
@@ -136,7 +168,7 @@ struct TodayView: View {
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(done ? Theme.ColorToken.success : Theme.ColorToken.textTertiary)
             }
-            .frame(width: 54, height: 76)
+            .frame(width: 58, height: 76)
             .background {
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .fill(isSel ? AnyShapeStyle(Theme.ctaGradient.opacity(0.35)) : AnyShapeStyle(Color.white.opacity(0.06)))
@@ -220,30 +252,43 @@ struct TodayView: View {
         let expanded = expandedScience.contains(step.id)
         return VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .top, spacing: 10) {
-                Image(systemName: step.iconSystemName)
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(Theme.ColorToken.accentSage)
-                    .frame(width: 28)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(step.title)
-                        .font(Theme.Typography.headline())
-                        .foregroundStyle(Theme.ColorToken.textPrimary)
-                    if let sec = step.estimatedSeconds {
-                        Label(durationLabel(seconds: sec), systemImage: "timer")
-                            .font(Theme.Typography.caption())
-                            .foregroundStyle(Theme.ColorToken.textTertiary)
-                    } else {
-                        Label("Tap when done", systemImage: "hand.tap")
-                            .font(Theme.Typography.caption())
-                            .foregroundStyle(Theme.ColorToken.textTertiary)
-                    }
-                    Text(step.details)
-                        .font(Theme.Typography.caption())
-                        .foregroundStyle(Theme.ColorToken.textSecondary)
-                }
-                Spacer()
                 Button {
-                    appState.toggleStep(step.id, on: selectedDate)
+                    guidedStep = step
+                } label: {
+                    HStack(alignment: .top, spacing: 10) {
+                        Image(systemName: step.iconSystemName)
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundStyle(Theme.ColorToken.accentSage)
+                            .frame(width: 28)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(step.title)
+                                .font(Theme.Typography.headline())
+                                .foregroundStyle(Theme.ColorToken.textPrimary)
+                                .multilineTextAlignment(.leading)
+                            if let sec = step.estimatedSeconds {
+                                Label(durationLabel(seconds: sec), systemImage: "timer")
+                                    .font(Theme.Typography.caption())
+                                    .foregroundStyle(Theme.ColorToken.textTertiary)
+                            } else {
+                                Label("No timer", systemImage: "hand.tap")
+                                    .font(Theme.Typography.caption())
+                                    .foregroundStyle(Theme.ColorToken.textTertiary)
+                            }
+                            Text(step.details)
+                                .font(Theme.Typography.caption())
+                                .foregroundStyle(Theme.ColorToken.textSecondary)
+                                .multilineTextAlignment(.leading)
+                            Text("Tap for guided step")
+                                .font(Theme.Typography.caption())
+                                .foregroundStyle(Theme.ColorToken.accentTerracotta.opacity(0.85))
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                Button {
+                    toggleStepWithConfetti(step.id, on: selectedDate)
                 } label: {
                     Image(systemName: done ? "checkmark.circle.fill" : "circle")
                         .font(.system(size: 26, weight: .semibold))
@@ -251,6 +296,7 @@ struct TodayView: View {
                         .symbolEffect(.bounce, value: done)
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(done ? "Mark step incomplete" : "Mark step complete")
             }
 
             if !step.scienceBlurb.isEmpty {
@@ -274,26 +320,24 @@ struct TodayView: View {
             }
 
             HStack(spacing: 10) {
-                if step.estimatedSeconds != nil {
-                    Button {
-                        guidedStep = step
-                    } label: {
-                        Text("Start")
-                            .font(Theme.Typography.subheadline())
-                            .foregroundStyle(Theme.ColorToken.textPrimary)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 10)
-                            .background(RoundedRectangle(cornerRadius: 12).fill(Theme.ctaGradient.opacity(0.55)))
-                    }
-                    .buttonStyle(GlassCapsuleButtonStyle())
-                }
                 Button {
-                    appState.toggleStep(step.id, on: selectedDate)
+                    guidedStep = step
                 } label: {
-                    Text(done ? "Undo" : "Done")
+                    Text("Open guided")
                         .font(Theme.Typography.subheadline())
                         .foregroundStyle(Theme.ColorToken.textPrimary)
-                        .frame(width: 88)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(RoundedRectangle(cornerRadius: 12).fill(Theme.ctaGradient.opacity(0.55)))
+                }
+                .buttonStyle(GlassCapsuleButtonStyle())
+                Button {
+                    toggleStepWithConfetti(step.id, on: selectedDate)
+                } label: {
+                    Text(done ? "Undo" : "Mark complete")
+                        .font(Theme.Typography.subheadline())
+                        .foregroundStyle(Theme.ColorToken.textPrimary)
+                        .frame(minWidth: 120)
                         .padding(.vertical, 10)
                         .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.08)))
                 }

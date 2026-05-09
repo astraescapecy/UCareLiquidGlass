@@ -218,7 +218,7 @@ enum DaySegment: String, Codable, CaseIterable, Identifiable {
         case .morning: return "Morning"
         case .midday: return "Midday"
         case .evening: return "Evening"
-        case .beforeBed: return "Before bed"
+        case .beforeBed: return "Night"
         }
     }
 

@@ -64,7 +64,7 @@ struct GuidedStepView: View {
                     Button("Close") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Mark done") {
+                    Button("Mark complete") {
                         onMarkDone()
                         dismiss()
                     }
