@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-/// Phase 1–3 — `TabView`: Today (routine), Progress (Glow-Up + charts + photos + Discover), Profile stub; glass tab chrome.
+/// Phase 1–4 — `TabView`: Today, Progress (Phase 3), Profile (Phase 4); glass tab chrome.
 struct MainTabView: View {
     enum Tab: Hashable {
         case today
@@ -25,7 +25,7 @@ struct MainTabView: View {
                 }
                 .tag(Tab.progress)
 
-            ProfilePlaceholderView()
+            ProfileOverviewView()
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")
                 }

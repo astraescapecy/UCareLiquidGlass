@@ -188,6 +188,10 @@ final class AppState: ObservableObject {
             : signUpDraft.fullName
 
         let memberSince = userProfile?.memberSince ?? .now
+        let rm = userProfile?.reminderMorningMinutes ?? (8 * 60)
+        let re = userProfile?.reminderEveningMinutes ?? (20 * 60 + 30)
+        let rb = userProfile?.reminderBedtimeMinutes ?? (22 * 60 + 30)
+        let wi = userProfile?.waterReminderIntervalMinutes ?? 120
         return UserProfile(
             fullName: displayName,
             email: signUpDraft.email,
@@ -205,6 +209,10 @@ final class AppState: ObservableObject {
             wantsMorningNudge: questionnaire.wantsMorningRoutineNudge,
             wantsEveningNudge: questionnaire.wantsEveningSkincareNudge,
             wantsBedtimeNudge: questionnaire.wantsBedtimeWindDown,
+            reminderMorningMinutes: rm,
+            reminderEveningMinutes: re,
+            reminderBedtimeMinutes: rb,
+            waterReminderIntervalMinutes: wi,
             optedInFacePhoto: questionnaire.optedInFacePhoto,
             optedInHairPhoto: questionnaire.optedInHairPhoto,
             optedInSkinPhoto: questionnaire.optedInSkinPhoto,
@@ -255,6 +263,22 @@ final class AppState: ObservableObject {
         persistence.completionDaySummaries()
     }
 
+    /// Flat list of completed steps (newest calendar day first); titles from current program, else raw id.
+    func completedStepEvents(limit: Int = 800) -> [(date: Date, stepId: String, title: String)] {
+        let titleMap = Dictionary(uniqueKeysWithValues: (userProfile?.programSteps ?? []).map { ($0.id, $0.title) })
+        var out: [(Date, String, String)] = []
+        for row in persistence.allCompletionDaysWithStepIds() {
+            for id in Set(row.stepIds) {
+                out.append((row.date, id, titleMap[id] ?? id))
+            }
+        }
+        let sorted = out.sorted { (lhs: (Date, String, String), rhs: (Date, String, String)) -> Bool in
+            if lhs.0 != rhs.0 { return lhs.0 > rhs.0 }
+            return lhs.2 < rhs.2
+        }
+        return Array(sorted.prefix(limit))
+    }
+
     func exportPayloadJSON() -> Data? {
         struct Export: Codable {
             let exportedAt: Date
@@ -273,6 +297,7 @@ final class AppState: ObservableObject {
     func logout() {
         persistence.clearAll()
         WeeklyProgressPhotoStore.clearAll()
+        ProfileAvatarStore.clear()
         isSubscribed = false
         signUpDraft = .init()
         questionnaire = .init()

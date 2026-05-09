@@ -148,4 +148,24 @@ final class OnboardingPersistence {
         }
         return rows.sorted { $0.date > $1.date }
     }
+
+    /// Every stored completion day with the raw step id list (newest day first).
+    func allCompletionDaysWithStepIds() -> [(date: Date, stepIds: [String])] {
+        var rows: [(date: Date, stepIds: [String])] = []
+        for key in defaults.dictionaryRepresentation().keys where key.hasPrefix(Key.completionPrefix) {
+            let suffix = String(key.dropFirst(Key.completionPrefix.count))
+            guard suffix.count == 8,
+                  let y = Int(suffix.prefix(4)),
+                  let m = Int(suffix.dropFirst(4).prefix(2)),
+                  let d = Int(suffix.suffix(2)),
+                  let date = Calendar.current.date(from: DateComponents(year: y, month: m, day: d))
+            else { continue }
+            guard let data = defaults.data(forKey: key),
+                  let arr = try? JSONDecoder().decode([String].self, from: data),
+                  !arr.isEmpty
+            else { continue }
+            rows.append((date: date, stepIds: arr))
+        }
+        return rows.sorted { $0.date > $1.date }
+    }
 }

@@ -1,10 +1,14 @@
+import PhotosUI
+import StoreKit
 import SwiftUI
+import UIKit
 
 private struct ExportDocument: Identifiable {
     let id = UUID()
     let url: URL
 }
 
+/// Phase 4 — Profile: account, goals retake, reminder times, StoreKit manage, export, privacy, per-step history.
 struct ProfileOverviewView: View {
     @EnvironmentObject private var appState: AppState
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -14,6 +18,9 @@ struct ProfileOverviewView: View {
     @State private var showHistory = false
     @State private var showHelp = false
     @State private var exportDocument: ExportDocument?
+    @State private var avatarPickerItem: PhotosPickerItem?
+    @State private var avatarVersion = 0
+    @State private var manageSubsMessage: String?
 
     var body: some View {
         ScrollView {
@@ -27,25 +34,35 @@ struct ProfileOverviewView: View {
 
                 if let p = appState.userProfile {
                     GlassCard {
-                        HStack(spacing: 12) {
-                            Circle()
-                                .fill(Theme.ctaGradient.opacity(0.55))
-                                .frame(width: 56, height: 56)
-                                .overlay {
-                                    Text(initials(for: p.fullName))
-                                        .font(.system(size: 20, weight: .bold))
-                                        .foregroundStyle(Theme.ColorToken.textPrimary)
+                        HStack(alignment: .top, spacing: 14) {
+                            avatarView(for: p)
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(p.fullName)
+                                    .font(Theme.Typography.title2())
+                                    .foregroundStyle(Theme.ColorToken.textPrimary)
+                                Text("Member since \(p.memberSince.formatted(date: .abbreviated, time: .omitted))")
+                                    .font(Theme.Typography.caption())
+                                    .foregroundStyle(Theme.ColorToken.textSecondary)
+                                Text(p.email)
+                                    .font(Theme.Typography.caption())
+                                    .foregroundStyle(Theme.ColorToken.textTertiary)
+                                PhotosPicker(selection: $avatarPickerItem, matching: .images, photoLibrary: .shared()) {
+                                    Text("Change photo")
+                                        .font(Theme.Typography.caption())
+                                        .foregroundStyle(Theme.ColorToken.accentTerracotta)
                                 }
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(p.fullName).foregroundStyle(Theme.ColorToken.textPrimary).font(Theme.Typography.headline())
-                                Text(p.email).foregroundStyle(Theme.ColorToken.textSecondary).font(Theme.Typography.caption())
+                                .buttonStyle(.plain)
+                                .onChange(of: avatarPickerItem) { _, newItem in
+                                    Task { await importAvatar(from: newItem) }
+                                }
                             }
-                            Spacer()
+                            Spacer(minLength: 0)
                         }
                     }
+                    .id(avatarVersion)
 
-                    GlassCard { info("Member since", p.memberSince.formatted(date: .abbreviated, time: .omitted)) }
                     GlassCard { info("UCare ID", "@\(p.username)") }
+
                     GlassCard {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Your goals")
@@ -63,7 +80,7 @@ struct ProfileOverviewView: View {
 
                     GlassCard {
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("Program")
+                            Text("Edit goals & program")
                                 .font(Theme.Typography.subheadline())
                                 .foregroundStyle(Theme.ColorToken.textSecondary)
                             Text("Update your goals and baseline — we’ll rebuild your stack and show a fresh preview.")
@@ -81,18 +98,40 @@ struct ProfileOverviewView: View {
                     }
 
                     GlassCard {
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text("Reminders (saved)")
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Notifications")
                                 .font(Theme.Typography.subheadline())
                                 .foregroundStyle(Theme.ColorToken.textSecondary)
                             Toggle("Water rhythm", isOn: reminderBinding(\.wantsWaterReminders))
                                 .tint(Theme.ColorToken.accentTerracotta)
+                            if appState.userProfile?.wantsWaterReminders == true {
+                                Stepper(value: waterIntervalBinding, in: 60...360, step: 15) {
+                                    Text("Water nudge interval: \(appState.userProfile?.waterReminderIntervalMinutes ?? 120) min")
+                                        .font(Theme.Typography.caption())
+                                        .foregroundStyle(Theme.ColorToken.textSecondary)
+                                }
+                            }
                             Toggle("Morning routine", isOn: reminderBinding(\.wantsMorningNudge))
                                 .tint(Theme.ColorToken.accentTerracotta)
+                            if appState.userProfile?.wantsMorningNudge == true {
+                                DatePicker("Morning time", selection: reminderDateBinding(\.reminderMorningMinutes), displayedComponents: .hourAndMinute)
+                                    .tint(Theme.ColorToken.accentTerracotta)
+                            }
                             Toggle("Evening skincare", isOn: reminderBinding(\.wantsEveningNudge))
                                 .tint(Theme.ColorToken.accentTerracotta)
+                            if appState.userProfile?.wantsEveningNudge == true {
+                                DatePicker("Evening time", selection: reminderDateBinding(\.reminderEveningMinutes), displayedComponents: .hourAndMinute)
+                                    .tint(Theme.ColorToken.accentTerracotta)
+                            }
                             Toggle("Bedtime wind-down", isOn: reminderBinding(\.wantsBedtimeNudge))
                                 .tint(Theme.ColorToken.accentTerracotta)
+                            if appState.userProfile?.wantsBedtimeNudge == true {
+                                DatePicker("Bedtime", selection: reminderDateBinding(\.reminderBedtimeMinutes), displayedComponents: .hourAndMinute)
+                                    .tint(Theme.ColorToken.accentTerracotta)
+                            }
+                            Text("System notification permission ships in Phase 5 — times are stored now so scheduling can use them.")
+                                .font(Theme.Typography.caption())
+                                .foregroundStyle(Theme.ColorToken.textTertiary)
                         }
                     }
 
@@ -101,7 +140,7 @@ struct ProfileOverviewView: View {
                             Text("History & data")
                                 .font(Theme.Typography.subheadline())
                                 .foregroundStyle(Theme.ColorToken.textSecondary)
-                            Button("Step completion history") { showHistory = true }
+                            Button("Every completed step") { showHistory = true }
                                 .font(Theme.Typography.subheadline())
                                 .foregroundStyle(Theme.ColorToken.textPrimary)
                             Button("Export my data (JSON)") { prepareExport() }
@@ -127,18 +166,39 @@ struct ProfileOverviewView: View {
                     }
 
                     GlassCard {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Privacy & data")
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Privacy & controls")
                                 .font(Theme.Typography.headline())
                                 .foregroundStyle(Theme.ColorToken.textPrimary)
-                            Text("Photos, intimate notes, and cycle data will be encrypted at rest before cloud sync ships. This build keeps protocol data on-device.")
+                            Text("Protocol, check-ins, and completions stay on this device. Photos you add in Progress or here are JPEGs in Application Support until encrypted sync ships.")
                                 .font(Theme.Typography.caption())
                                 .foregroundStyle(Theme.ColorToken.textSecondary)
+                            Button("Remove profile photo", role: .destructive) {
+                                ProfileAvatarStore.clear()
+                                avatarVersion += 1
+                            }
+                            .font(Theme.Typography.subheadline())
+                            Button("Delete all weekly Progress photos") {
+                                WeeklyProgressPhotoStore.clearAll()
+                            }
+                            .font(Theme.Typography.subheadline())
+                            .foregroundStyle(Theme.ColorToken.accentTerracotta)
                         }
                     }
 
-                    GradientCTAButton(title: appState.hasActiveSubscription ? "Manage subscription" : "Upgrade to Plus") {
-                        appState.openPaywall()
+                    if appState.hasActiveSubscription {
+                        GradientCTAButton(title: "Manage subscription (App Store)") {
+                            Task { await openManageSubscriptions() }
+                        }
+                        if let manageSubsMessage {
+                            Text(manageSubsMessage)
+                                .font(Theme.Typography.caption())
+                                .foregroundStyle(Theme.ColorToken.textTertiary)
+                        }
+                    } else {
+                        GradientCTAButton(title: "Upgrade to Plus") {
+                            appState.openPaywall()
+                        }
                     }
 
                     GradientCTAButton(title: "Log out") {
@@ -203,7 +263,59 @@ struct ProfileOverviewView: View {
             }
             Button("Cancel", role: .cancel) { }
         } message: {
-            Text("Removes profile, completions, check-ins, and subscription flags stored locally. This does not cancel App Store subscriptions — do that in Settings → Subscriptions.")
+            Text("Removes profile, completions, check-ins, photos, avatar, and subscription flags stored locally. This does not cancel App Store subscriptions — use Manage subscription or Settings → Subscriptions.")
+        }
+    }
+
+    @ViewBuilder
+    private func avatarView(for p: UserProfile) -> some View {
+        if let data = ProfileAvatarStore.loadJPEGData(), let ui = UIImage(data: data) {
+            Image(uiImage: ui)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 72, height: 72)
+                .clipShape(Circle())
+                .overlay {
+                    Circle().strokeBorder(Theme.ColorToken.glassStroke, lineWidth: 1)
+                }
+        } else {
+            Circle()
+                .fill(Theme.ctaGradient.opacity(0.55))
+                .frame(width: 72, height: 72)
+                .overlay {
+                    Text(initials(for: p.fullName))
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundStyle(Theme.ColorToken.textPrimary)
+                }
+        }
+    }
+
+    private func importAvatar(from item: PhotosPickerItem?) async {
+        guard let item else { return }
+        do {
+            guard let data = try await item.loadTransferable(type: Data.self) else { return }
+            guard let ui = UIImage(data: data), let jpg = ui.jpegData(compressionQuality: 0.82) else { return }
+            try ProfileAvatarStore.saveJPEG(jpg)
+            await MainActor.run {
+                avatarVersion += 1
+                avatarPickerItem = nil
+            }
+        } catch {
+            await MainActor.run { avatarPickerItem = nil }
+        }
+    }
+
+    @MainActor
+    private func openManageSubscriptions() async {
+        manageSubsMessage = nil
+        do {
+            guard let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else {
+                manageSubsMessage = "Couldn’t open App Store sheet."
+                return
+            }
+            try await AppStore.showManageSubscriptions(in: scene)
+        } catch {
+            manageSubsMessage = error.localizedDescription
         }
     }
 
@@ -235,6 +347,30 @@ struct ProfileOverviewView: View {
             get: { appState.userProfile?[keyPath: keyPath] ?? false },
             set: { newValue in
                 appState.updateProfile { $0[keyPath: keyPath] = newValue }
+            }
+        )
+    }
+
+    private var waterIntervalBinding: Binding<Int> {
+        Binding(
+            get: { appState.userProfile?.waterReminderIntervalMinutes ?? 120 },
+            set: { newValue in
+                appState.updateProfile { $0.waterReminderIntervalMinutes = min(360, max(60, newValue)) }
+            }
+        )
+    }
+
+    private func reminderDateBinding(_ keyPath: WritableKeyPath<UserProfile, Int>) -> Binding<Date> {
+        Binding(
+            get: {
+                let m = appState.userProfile?[keyPath: keyPath] ?? 0
+                let clamped = min(1439, max(0, m))
+                return Calendar.current.date(bySettingHour: clamped / 60, minute: clamped % 60, second: 0, of: Date()) ?? .now
+            },
+            set: { newDate in
+                let c = Calendar.current.dateComponents([.hour, .minute], from: newDate)
+                let mins = min(1439, max(0, (c.hour ?? 0) * 60 + (c.minute ?? 0)))
+                appState.updateProfile { $0[keyPath: keyPath] = mins }
             }
         )
     }

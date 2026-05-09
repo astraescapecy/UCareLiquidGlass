@@ -20,6 +20,13 @@ struct UserProfile: Codable, Equatable {
     var wantsEveningNudge: Bool
     var wantsBedtimeNudge: Bool
 
+    /// Local reminder schedule (minutes from midnight, 0…1439).
+    var reminderMorningMinutes: Int
+    var reminderEveningMinutes: Int
+    var reminderBedtimeMinutes: Int
+    /// How often to nudge water when rhythm is on (e.g. 120 = every 2h) — Phase 5 will schedule from this.
+    var waterReminderIntervalMinutes: Int
+
     var optedInFacePhoto: Bool
     var optedInHairPhoto: Bool
     var optedInSkinPhoto: Bool
@@ -30,6 +37,7 @@ struct UserProfile: Codable, Equatable {
         case fullName, email, username, memberSince, careGoals, sex, age, dietStyle
         case allergiesNote, routineNote, problemAreasNote, glowUpTargetDate
         case wantsWaterReminders, wantsMorningNudge, wantsEveningNudge, wantsBedtimeNudge
+        case reminderMorningMinutes, reminderEveningMinutes, reminderBedtimeMinutes, waterReminderIntervalMinutes
         case optedInFacePhoto, optedInHairPhoto, optedInSkinPhoto, programSteps
         // Legacy (pre–UCare spec)
         case goal, heightCm, weightKg, targetWeightKg, timeline, activityLevel, dietaryPreferences
@@ -53,6 +61,10 @@ struct UserProfile: Codable, Equatable {
         wantsMorningNudge: Bool,
         wantsEveningNudge: Bool,
         wantsBedtimeNudge: Bool,
+        reminderMorningMinutes: Int = 8 * 60,
+        reminderEveningMinutes: Int = 20 * 60 + 30,
+        reminderBedtimeMinutes: Int = 22 * 60 + 30,
+        waterReminderIntervalMinutes: Int = 120,
         optedInFacePhoto: Bool,
         optedInHairPhoto: Bool,
         optedInSkinPhoto: Bool,
@@ -74,6 +86,10 @@ struct UserProfile: Codable, Equatable {
         self.wantsMorningNudge = wantsMorningNudge
         self.wantsEveningNudge = wantsEveningNudge
         self.wantsBedtimeNudge = wantsBedtimeNudge
+        self.reminderMorningMinutes = reminderMorningMinutes
+        self.reminderEveningMinutes = reminderEveningMinutes
+        self.reminderBedtimeMinutes = reminderBedtimeMinutes
+        self.waterReminderIntervalMinutes = waterReminderIntervalMinutes
         self.optedInFacePhoto = optedInFacePhoto
         self.optedInHairPhoto = optedInHairPhoto
         self.optedInSkinPhoto = optedInSkinPhoto
@@ -108,6 +124,11 @@ struct UserProfile: Codable, Equatable {
         wantsEveningNudge = try c.decodeIfPresent(Bool.self, forKey: .wantsEveningNudge) ?? true
         wantsBedtimeNudge = try c.decodeIfPresent(Bool.self, forKey: .wantsBedtimeNudge) ?? true
 
+        reminderMorningMinutes = try c.decodeIfPresent(Int.self, forKey: .reminderMorningMinutes) ?? (8 * 60)
+        reminderEveningMinutes = try c.decodeIfPresent(Int.self, forKey: .reminderEveningMinutes) ?? (20 * 60 + 30)
+        reminderBedtimeMinutes = try c.decodeIfPresent(Int.self, forKey: .reminderBedtimeMinutes) ?? (22 * 60 + 30)
+        waterReminderIntervalMinutes = try c.decodeIfPresent(Int.self, forKey: .waterReminderIntervalMinutes) ?? 120
+
         optedInFacePhoto = try c.decodeIfPresent(Bool.self, forKey: .optedInFacePhoto) ?? false
         optedInHairPhoto = try c.decodeIfPresent(Bool.self, forKey: .optedInHairPhoto) ?? false
         optedInSkinPhoto = try c.decodeIfPresent(Bool.self, forKey: .optedInSkinPhoto) ?? false
@@ -133,6 +154,10 @@ struct UserProfile: Codable, Equatable {
         try c.encode(wantsMorningNudge, forKey: .wantsMorningNudge)
         try c.encode(wantsEveningNudge, forKey: .wantsEveningNudge)
         try c.encode(wantsBedtimeNudge, forKey: .wantsBedtimeNudge)
+        try c.encode(reminderMorningMinutes, forKey: .reminderMorningMinutes)
+        try c.encode(reminderEveningMinutes, forKey: .reminderEveningMinutes)
+        try c.encode(reminderBedtimeMinutes, forKey: .reminderBedtimeMinutes)
+        try c.encode(waterReminderIntervalMinutes, forKey: .waterReminderIntervalMinutes)
         try c.encode(optedInFacePhoto, forKey: .optedInFacePhoto)
         try c.encode(optedInHairPhoto, forKey: .optedInHairPhoto)
         try c.encode(optedInSkinPhoto, forKey: .optedInSkinPhoto)
