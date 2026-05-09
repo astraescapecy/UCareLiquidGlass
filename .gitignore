@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+
+# Xcode / build
+build/
+DerivedData/
+*.xcuserstate
+*.xcscmblueprint
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Per-user Xcode (keep shared schemes)
+**/xcuserdata/
+
+# SwiftPM
+.swiftpm/
+Package.resolved
+
+# Cursor / local tooling (optional)
+.cursor/

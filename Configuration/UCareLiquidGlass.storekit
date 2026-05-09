@@ -1,0 +1,160 @@
+{
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
+  "identifier" : "UCARE-LG-STOREKIT-01",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "249.00",
+      "familyShareable" : false,
+      "internalID" : "E7C4A901",
+      "localizations" : [
+        {
+          "description" : "One-time unlock for UCare Plus features forever (local StoreKit testing).",
+          "displayName" : "UCare Lifetime",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.ucare.liquidglass.lifetime",
+      "referenceName" : "UCare Lifetime",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verification"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Store Sync"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Subscription Status"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Transaction"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Manage Subscriptions Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Refund Request Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Offer Code Redeem Sheet"
+      }
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "A1F2B3C4",
+      "localizations" : [
+        {
+          "description" : "UCare Plus subscription (local StoreKit testing).",
+          "displayName" : "UCare Plus",
+          "locale" : "en_US"
+        }
+      ],
+      "name" : "UCare Plus",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "14.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "B2C3D4E5",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Monthly UCare Plus — flexible, cancel anytime.",
+              "displayName" : "UCare Plus — Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.ucare.liquidglass.plus.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "UCare Plus Monthly",
+          "subscriptionGroupID" : "A1F2B3C4",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "79.99",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "C3D4E5F6",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Yearly UCare Plus — best value vs monthly.",
+              "displayName" : "UCare Plus — Yearly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.ucare.liquidglass.plus.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "UCare Plus Yearly",
+          "subscriptionGroupID" : "A1F2B3C4",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}

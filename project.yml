@@ -1,0 +1,25 @@
+name: UCareLiquidGlass
+options:
+  bundleIdPrefix: com.ucare
+  deploymentTarget:
+    iOS: "17.0"
+fileGroups:
+  - Configuration
+targets:
+  UCareLiquidGlass:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources/UCareLiquidGlass
+    scheme:
+      storeKitConfiguration: Configuration/UCareLiquidGlass.storekit
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.ucare.liquidglass
+      SWIFT_VERSION: "5.10"
+      TARGETED_DEVICE_FAMILY: "1"
+      GENERATE_INFOPLIST_FILE: YES
+      INFOPLIST_KEY_CFBundleDisplayName: UCare
+      INFOPLIST_KEY_UILaunchScreen_Generation: YES
+      INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+      INFOPLIST_KEY_UIStatusBarStyle: UIStatusBarStyleLightContent
+      INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
