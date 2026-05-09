@@ -129,8 +129,11 @@ struct ProgressOverviewView: View {
                             sparkRow("Breath", values: chronological.map(\.breathFreshness))
                             sparkRow("Odor", values: chronological.map(\.bodyOdorConfidence))
                             sparkRow("Sex drive", values: chronological.map(\.sexDrive))
+                            sparkRow("Hair", values: chronological.map(\.hairScalp))
                             sparkRow("Energy", values: chronological.map(\.energy))
                             sparkRow("Sleep", values: chronological.map(\.sleepQuality))
+                            sparkRow("Gut", values: chronological.map(\.gutComfort))
+                            sparkRow("Intimate", values: chronological.map(\.intimateConfidence))
                         }
                     }
                 }
