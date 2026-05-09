@@ -1,8 +1,7 @@
 import SwiftUI
 import UIKit
 
-/// Phase 1 shell: native three-tab `TabView` (Today · Progress · Profile) with liquid-glass tab chrome.
-/// Today hosts the routine checklist; Progress/Profile reuse the richer views already built for later phases.
+/// Phase 1 — Three-tab navigation: `TabView` with Today (checklist), stub Progress, stub Profile; glass tab chrome.
 struct MainTabView: View {
     enum Tab: Hashable {
         case today
@@ -20,13 +19,13 @@ struct MainTabView: View {
                 }
                 .tag(Tab.today)
 
-            ProgressOverviewView()
+            ProgressPlaceholderView()
                 .tabItem {
                     Label("Progress", systemImage: "chart.line.uptrend.xyaxis")
                 }
                 .tag(Tab.progress)
 
-            ProfileOverviewView()
+            ProfilePlaceholderView()
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")
                 }

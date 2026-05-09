@@ -81,7 +81,7 @@ struct TodayView: View {
                 }
             }
             .padding(Theme.Layout.contentHorizontalPadding)
-            .padding(.bottom, 90)
+            .padding(.bottom, 28)
             .opacity(entered ? 1 : 0)
             .offset(y: entered ? 0 : 16)
             .animation(LLGAnimation.entrance(reduceMotion: reduceMotion), value: entered)

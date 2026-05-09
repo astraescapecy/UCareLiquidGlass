@@ -17,8 +17,10 @@
 		2D67DAC392D14C138D4D8127 /* AIAnalysisLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F2559CE4B427A7551F96BB /* AIAnalysisLoadingView.swift */; };
 		30BE37F64D9737708DAB3800 /* UCareLiquidGlassApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEA4C3894DB14C4A72A443EE /* UCareLiquidGlassApp.swift */; };
 		35D8A58AF946D9A5FE9EB031 /* AppProgramServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2FBCB6B6B137A8123471966 /* AppProgramServices.swift */; };
+		3B2A3B7427A7698C357A827B /* ProfilePlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BED99482F41D5787ABA286A /* ProfilePlaceholderView.swift */; };
 		3CC593ADDE8326F44792DD63 /* PaywallPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85810177BD195A25FE24E988 /* PaywallPlan.swift */; };
 		41DA9C5754385C1480982523 /* ProgressOverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B1C63710EE235B7063D181F /* ProgressOverviewView.swift */; };
+		466A46853C4071B23BFC92F2 /* ProgressPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEEBC72831B4C6C836AC637 /* ProgressPlaceholderView.swift */; };
 		50DAB9FFF4CE6218AFBA277D /* HelpFAQView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45DE5AB956DD154A0E4AB93C /* HelpFAQView.swift */; };
 		5224E701786BF41BAEBD2369 /* OnboardingPersistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13735EA05C181ADE49DF6E45 /* OnboardingPersistence.swift */; };
 		5332B5390EAAFD1C6A3B0952 /* TDEECalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53179AC0FD8C4203D11653C6 /* TDEECalculator.swift */; };
@@ -58,6 +60,7 @@
 		13735EA05C181ADE49DF6E45 /* OnboardingPersistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPersistence.swift; sourceTree = "<group>"; };
 		1692FC4B19F506D58115511B /* GuidedStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuidedStepView.swift; sourceTree = "<group>"; };
 		1797608A3F76C7B4547B449C /* UCareFocus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UCareFocus.swift; sourceTree = "<group>"; };
+		1BED99482F41D5787ABA286A /* ProfilePlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePlaceholderView.swift; sourceTree = "<group>"; };
 		27CD01D259A82242BE43C357 /* WeeklyCheckInEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyCheckInEntry.swift; sourceTree = "<group>"; };
 		3AA050341FADF1DDF033344D /* GetStartedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetStartedView.swift; sourceTree = "<group>"; };
 		3B1C63710EE235B7063D181F /* ProgressOverviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressOverviewView.swift; sourceTree = "<group>"; };
@@ -78,6 +81,7 @@
 		887878774DFA316773E7D0B5 /* UCareLiquidGlass.storekit */ = {isa = PBXFileReference; path = UCareLiquidGlass.storekit; sourceTree = "<group>"; };
 		9378089A5354D9A82026BDE0 /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
 		987A51A068A75F95727A30DC /* GlassSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassSurface.swift; sourceTree = "<group>"; };
+		9FEEBC72831B4C6C836AC637 /* ProgressPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressPlaceholderView.swift; sourceTree = "<group>"; };
 		A0B5A376E4BDE86D50B656AB /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
 		A2FBCB6B6B137A8123471966 /* AppProgramServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppProgramServices.swift; sourceTree = "<group>"; };
 		AEA4C3894DB14C4A72A443EE /* UCareLiquidGlassApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UCareLiquidGlassApp.swift; sourceTree = "<group>"; };
@@ -178,7 +182,9 @@
 				E928D702A381F9F540B454A6 /* LogMealView.swift */,
 				DD7D04D00F9B47A291911242 /* MainTabView.swift */,
 				BDC3DFA3D42EB24A902C322A /* ProfileOverviewView.swift */,
+				1BED99482F41D5787ABA286A /* ProfilePlaceholderView.swift */,
 				3B1C63710EE235B7063D181F /* ProgressOverviewView.swift */,
+				9FEEBC72831B4C6C836AC637 /* ProgressPlaceholderView.swift */,
 				BACBB7FA3981F2CC9CB54102 /* StepHistoryView.swift */,
 				47D62F40A261CA376B9491ED /* TodayView.swift */,
 				BC4ECBAAE39092E3016C9581 /* WeeklyCheckInSheet.swift */,
@@ -333,8 +339,10 @@
 				80FF3ADB1F591CDDC5BDCD7D /* PaywallView.swift in Sources */,
 				2D555EB398B32E8D7D4900A8 /* PlanRevealView.swift in Sources */,
 				DC6F6DA3F970EA2A6710E3E3 /* ProfileOverviewView.swift in Sources */,
+				3B2A3B7427A7698C357A827B /* ProfilePlaceholderView.swift in Sources */,
 				A61A85C767281EEA6170E39F /* ProgramBuilder.swift in Sources */,
 				41DA9C5754385C1480982523 /* ProgressOverviewView.swift in Sources */,
+				466A46853C4071B23BFC92F2 /* ProgressPlaceholderView.swift in Sources */,
 				D35BE41B15F62645CA7585FD /* QuestionnaireDraft.swift in Sources */,
 				7995B3D923DCD4014B4B2635 /* QuestionnaireFlowView.swift in Sources */,
 				25A6C2795FE02901601822FB /* RootView.swift in Sources */,
