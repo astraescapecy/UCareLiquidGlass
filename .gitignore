@@ -4,6 +4,7 @@
 # Xcode / build
 build/
 DerivedData/
+.derivedData/
 *.xcuserstate
 *.xcscmblueprint
 *.moved-aside

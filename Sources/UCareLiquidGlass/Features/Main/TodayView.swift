@@ -12,91 +12,109 @@ struct TodayView: View {
     @AppStorage("ucare.lastDayCompleteBanner") private var lastDayCompleteKey: String = ""
 
     var body: some View {
-        ZStack(alignment: .top) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    weekStrip
+        ZStack {
+            TodayPageLabsBackground()
+                .ignoresSafeArea()
 
-                    completionHero
+            ZStack(alignment: .top) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 22) {
+                        weekStrip
 
-                    if let gentle = missedDayGentleLine {
-                    Text(gentle)
-                        .font(Theme.Typography.caption())
-                        .foregroundStyle(Theme.ColorToken.accentSand)
-                        .padding(12)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(RoundedRectangle(cornerRadius: 14).fill(.ultraThinMaterial))
-                    }
+                        completionHero
 
-                    Text("Hey, \(firstName)")
-                    .font(Theme.Typography.subheadline())
-                        .foregroundStyle(Theme.ColorToken.textSecondary)
-
-                    Text(headerTitle)
-                    .font(Theme.Typography.largeTitle())
-                        .foregroundStyle(Theme.ColorToken.textPrimary)
-                    Text(subheaderDateLine)
-                    .font(Theme.Typography.subheadline())
-                        .foregroundStyle(Theme.ColorToken.textSecondary)
-
-                    if !appState.hasActiveSubscription {
-                    GlassCard(cornerRadius: 16) {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Free preview")
-                                .font(Theme.Typography.headline())
-                                .foregroundStyle(Theme.ColorToken.textPrimary)
-                            Text("You’re seeing your Day‑1 stack. Unlock Plus for the full rotating protocol, deeper Glow‑Up Score, and photo timeline.")
+                        if let gentle = missedDayGentleLine {
+                            Text(gentle)
                                 .font(Theme.Typography.caption())
-                                .foregroundStyle(Theme.ColorToken.textSecondary)
-                            Button("View plans") { appState.openPaywall() }
-                                .font(Theme.Typography.caption())
-                                .foregroundStyle(Theme.ColorToken.accentTerracotta)
-                        }
-                        }
-                    }
-
-                    Text("Today’s stack")
-                    .font(Theme.Typography.headline())
-                        .foregroundStyle(Theme.ColorToken.textPrimary)
-
-                    if !stepsForSelectedDay.isEmpty {
-                    ForEach(DaySegment.orderedForToday) { segment in
-                        let segSteps = stepsForSelectedDay.filter { $0.segment == segment }
-                        if !segSteps.isEmpty {
-                            GlassCard(cornerRadius: 18) {
-                                VStack(alignment: .leading, spacing: 10) {
-                                    Text("\(segment.emoji) \(segment.title)")
-                                        .font(Theme.Typography.subheadline())
-                                        .foregroundStyle(Theme.ColorToken.textSecondary)
-                                    ForEach(segSteps) { step in
-                                        stepCard(step)
-                                    }
-                                }
+                                .foregroundStyle(TodayPageLabs.secondaryLabel)
+                                .lineSpacing(4)
+                                .padding(14)
                                 .frame(maxWidth: .infinity, alignment: .leading)
+                                .background {
+                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                        .fill(TodayPageLabs.elevated)
+                                        .overlay {
+                                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                                .strokeBorder(TodayPageLabs.hairline, lineWidth: 1)
+                                        }
+                                }
+                        }
+
+                        Text(mainListTitle)
+                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                            .foregroundStyle(Color.white)
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        if !appState.hasActiveSubscription {
+                            TodayPageLabsCard(cornerRadius: 16) {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    Text("Free preview")
+                                        .font(Theme.Typography.headline())
+                                        .foregroundStyle(Color.white)
+                                    Text("You’re seeing your Day‑1 stack. Unlock Plus for the full rotating protocol, deeper Glow‑Up Score, and photo timeline.")
+                                        .font(Theme.Typography.caption())
+                                        .foregroundStyle(TodayPageLabs.secondaryLabel)
+                                        .lineSpacing(4)
+                                    Button {
+                                        appState.openPaywall()
+                                    } label: {
+                                        HStack(spacing: 8) {
+                                            Image(systemName: "sparkles")
+                                                .font(.system(size: 14, weight: .semibold))
+                                            Text("View plans")
+                                                .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                                        }
+                                        .foregroundStyle(TodayPageLabs.onLight)
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 12)
+                                        .background(Capsule().fill(Color.white))
+                                    }
+                                    .buttonStyle(GlassCapsuleButtonStyle())
+                                }
                             }
                         }
-                    }
-                } else if appState.userProfile == nil {
-                    Text("Complete onboarding to see your stack.")
-                        .font(Theme.Typography.subheadline())
-                        .foregroundStyle(Theme.ColorToken.textSecondary)
-                }
-            }
-            .padding(Theme.Layout.contentHorizontalPadding)
-            .padding(.bottom, 28)
-            .opacity(entered ? 1 : 0)
-            .offset(y: entered ? 0 : 16)
-            .animation(LLGAnimation.entrance(reduceMotion: reduceMotion), value: entered)
-            .animation(LLGAnimation.entrance(reduceMotion: reduceMotion), value: appState.completedStepIDs)
-            }
 
-            if let burst = confettiTrigger {
-                MicroConfettiBurstView()
-                    .id(burst)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 200)
-                    .padding(.top, 72)
-                    .allowsHitTesting(false)
+                        if !stepsForSelectedDay.isEmpty {
+                            ForEach(DaySegment.orderedForToday) { segment in
+                                let segSteps = stepsForSelectedDay.filter { $0.segment == segment }
+                                if !segSteps.isEmpty {
+                                    TodayPageLabsCard(cornerRadius: 18) {
+                                        VStack(alignment: .leading, spacing: 12) {
+                                            Text("\(segment.emoji) \(segment.title)")
+                                                .font(Theme.Typography.subheadline())
+                                                .foregroundStyle(TodayPageLabs.secondaryLabel)
+                                            ForEach(segSteps) { step in
+                                                stepCard(step)
+                                            }
+                                        }
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                    }
+                                }
+                            }
+                        } else if appState.userProfile == nil {
+                            Text("Complete onboarding to see your stack.")
+                                .font(Theme.Typography.subheadline())
+                                .foregroundStyle(TodayPageLabs.secondaryLabel)
+                        }
+                    }
+                    .padding(.top, 8)
+                    .padding(Theme.Layout.contentHorizontalPadding)
+                    .padding(.bottom, 28)
+                    .opacity(entered ? 1 : 0)
+                    .offset(y: entered ? 0 : 16)
+                    .animation(LLGAnimation.entrance(reduceMotion: reduceMotion), value: entered)
+                    .animation(LLGAnimation.entrance(reduceMotion: reduceMotion), value: appState.completedStepIDs)
+                }
+                .ucareScrollOnMesh()
+
+                if let burst = confettiTrigger {
+                    MicroConfettiBurstView()
+                        .id(burst)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 200)
+                        .padding(.top, 72)
+                        .allowsHitTesting(false)
+                }
             }
         }
         .sheet(item: $guidedStep) { step in
@@ -148,6 +166,7 @@ struct TodayView: View {
             }
             .padding(.vertical, 4)
         }
+        .ucareScrollOnMesh()
     }
 
     private func weekCell(_ day: Date) -> some View {
@@ -160,22 +179,26 @@ struct TodayView: View {
             VStack(spacing: 6) {
                 Text(day.formatted(.dateTime.weekday(.abbreviated)))
                     .font(Theme.Typography.caption())
-                    .foregroundStyle(Theme.ColorToken.textSecondary)
+                    .foregroundStyle(isSel ? Color.black.opacity(0.45) : TodayPageLabs.secondaryLabel)
                 Text(day, format: .dateTime.day())
                     .font(Theme.Typography.headline())
-                    .foregroundStyle(isSel ? Theme.ColorToken.textPrimary : Theme.ColorToken.textSecondary)
+                    .foregroundStyle(isSel ? Color.black : Color.white.opacity(0.92))
                 Image(systemName: done ? "checkmark.circle.fill" : "circle")
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(done ? Theme.ColorToken.success : Theme.ColorToken.textTertiary)
+                    .foregroundStyle(
+                        done
+                            ? (isSel ? Color.black : Color.white)
+                            : (isSel ? Color.black.opacity(0.35) : TodayPageLabs.secondaryLabel.opacity(0.7))
+                    )
             }
             .frame(width: 58, height: 76)
             .background {
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(isSel ? AnyShapeStyle(Theme.ctaGradient.opacity(0.35)) : AnyShapeStyle(Color.white.opacity(0.06)))
+                    .fill(isSel ? AnyShapeStyle(Color.white) : AnyShapeStyle(TodayPageLabs.pillSecondaryFill))
             }
             .overlay {
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .strokeBorder(isSel ? Theme.ColorToken.glassStrokeFocus : Theme.ColorToken.glassStroke, lineWidth: 1)
+                    .strokeBorder(isSel ? Color.black.opacity(0.08) : TodayPageLabs.hairlineMuted, lineWidth: 1)
             }
         }
         .buttonStyle(GlassCapsuleButtonStyle())
@@ -188,12 +211,8 @@ struct TodayView: View {
         return (0..<7).compactMap { cal.date(byAdding: .day, value: $0, to: start) }
     }
 
-    private var headerTitle: String {
-        Calendar.current.isDateInToday(selectedDate) ? "Today" : "Your day"
-    }
-
-    private var subheaderDateLine: String {
-        selectedDate.formatted(.dateTime.weekday(.wide).month().day())
+    private var mainListTitle: String {
+        Calendar.current.isDateInToday(selectedDate) ? "Today's to do list" : "To-do list"
     }
 
     private var missedDayGentleLine: String? {
@@ -203,13 +222,6 @@ struct TodayView: View {
             return "Yesterday’s gone — today’s yours. No guilt, just the next right step."
         }
         return nil
-    }
-
-    private var firstName: String {
-        if let full = appState.userProfile?.fullName.split(separator: " ").first.map(String.init), !full.isEmpty {
-            return full
-        }
-        return appState.signUpDraft.fullName.split(separator: " ").first.map(String.init) ?? "there"
     }
 
     private var stepsForSelectedDay: [ProgramStep] {
@@ -233,17 +245,27 @@ struct TodayView: View {
     }
 
     private var completionHero: some View {
-        GlassCard {
-            VStack(spacing: 10) {
+        TodayPageLabsCard(cornerRadius: Theme.Layout.glassCornerRadius) {
+            VStack(spacing: 16) {
                 CalorieRingView(
                     progress: completionProgress,
-                    lineWidth: 12,
-                    label: completionLine,
+                    lineWidth: 13,
+                    label: "",
                     centerTitle: "\(completedForSelected)/\(max(1, totalSteps))",
-                    centerSubtitle: "steps done"
+                    centerSubtitle: "steps done",
+                    monochromeProgress: true
                 )
-                .frame(height: 170)
+                .frame(maxWidth: .infinity)
+                .frame(height: 168)
+
+                Text(completionLine)
+                    .font(Theme.Typography.subheadline())
+                    .foregroundStyle(TodayPageLabs.secondaryLabel)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(4)
+                    .fixedSize(horizontal: false, vertical: true)
             }
+            .frame(maxWidth: .infinity)
         }
     }
 
@@ -258,29 +280,30 @@ struct TodayView: View {
                     HStack(alignment: .top, spacing: 10) {
                         Image(systemName: step.iconSystemName)
                             .font(.system(size: 20, weight: .semibold))
-                            .foregroundStyle(Theme.ColorToken.accentSage)
+                            .foregroundStyle(Color.white.opacity(0.85))
                             .frame(width: 28)
                         VStack(alignment: .leading, spacing: 4) {
                             Text(step.title)
                                 .font(Theme.Typography.headline())
-                                .foregroundStyle(Theme.ColorToken.textPrimary)
+                                .foregroundStyle(Color.white)
                                 .multilineTextAlignment(.leading)
                             if let sec = step.estimatedSeconds {
                                 Label(durationLabel(seconds: sec), systemImage: "timer")
                                     .font(Theme.Typography.caption())
-                                    .foregroundStyle(Theme.ColorToken.textTertiary)
+                                    .foregroundStyle(TodayPageLabs.secondaryLabel)
                             } else {
                                 Label("No timer", systemImage: "hand.tap")
                                     .font(Theme.Typography.caption())
-                                    .foregroundStyle(Theme.ColorToken.textTertiary)
+                                    .foregroundStyle(TodayPageLabs.secondaryLabel)
                             }
                             Text(step.details)
                                 .font(Theme.Typography.caption())
-                                .foregroundStyle(Theme.ColorToken.textSecondary)
+                                .foregroundStyle(TodayPageLabs.secondaryLabel)
+                                .lineSpacing(3)
                                 .multilineTextAlignment(.leading)
                             Text("Tap for guided step")
                                 .font(Theme.Typography.caption())
-                                .foregroundStyle(Theme.ColorToken.accentTerracotta.opacity(0.85))
+                                .foregroundStyle(Color.white.opacity(0.92))
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -292,7 +315,7 @@ struct TodayView: View {
                 } label: {
                     Image(systemName: done ? "checkmark.circle.fill" : "circle")
                         .font(.system(size: 26, weight: .semibold))
-                        .foregroundStyle(done ? Theme.ColorToken.success : Theme.ColorToken.textTertiary)
+                        .foregroundStyle(done ? Color.white : TodayPageLabs.secondaryLabel.opacity(0.75))
                         .symbolEffect(.bounce, value: done)
                 }
                 .buttonStyle(.plain)
@@ -303,18 +326,19 @@ struct TodayView: View {
                 Button {
                     if expanded { expandedScience.remove(step.id) } else { expandedScience.insert(step.id) }
                 } label: {
-                    HStack {
+                    HStack(spacing: 6) {
                         Text("Why it works")
                             .font(Theme.Typography.caption())
                         Image(systemName: expanded ? "chevron.up" : "chevron.down")
                     }
-                    .foregroundStyle(Theme.ColorToken.accentTerracotta)
+                    .foregroundStyle(Color.white.opacity(0.88))
                 }
                 .buttonStyle(.plain)
                 if expanded {
                     Text(step.scienceBlurb)
                         .font(Theme.Typography.caption())
-                        .foregroundStyle(Theme.ColorToken.textSecondary)
+                        .foregroundStyle(TodayPageLabs.secondaryLabel)
+                        .lineSpacing(3)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
@@ -323,25 +347,37 @@ struct TodayView: View {
                 Button {
                     guidedStep = step
                 } label: {
-                    Text("Open guided")
-                        .font(Theme.Typography.subheadline())
-                        .foregroundStyle(Theme.ColorToken.textPrimary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(RoundedRectangle(cornerRadius: 12).fill(Theme.ctaGradient.opacity(0.55)))
+                    HStack(spacing: 8) {
+                        Image(systemName: "play.fill")
+                            .font(.system(size: 12, weight: .bold))
+                        Text("Open guided")
+                            .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                    }
+                    .foregroundStyle(TodayPageLabs.onLight)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(Capsule().fill(Color.white))
                 }
                 .buttonStyle(GlassCapsuleButtonStyle())
+                .frame(maxWidth: .infinity)
                 Button {
                     toggleStepWithConfetti(step.id, on: selectedDate)
                 } label: {
                     Text(done ? "Undo" : "Mark complete")
-                        .font(Theme.Typography.subheadline())
-                        .foregroundStyle(Theme.ColorToken.textPrimary)
-                        .frame(minWidth: 120)
+                        .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                        .foregroundStyle(Color.white)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
-                        .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(0.08)))
+                        .background {
+                            Capsule()
+                                .strokeBorder(TodayPageLabs.hairline, lineWidth: 1)
+                                .background(Capsule().fill(TodayPageLabs.pillSecondaryFill))
+                        }
                 }
                 .buttonStyle(GlassCapsuleButtonStyle())
+                .frame(maxWidth: .infinity)
             }
         }
         .padding(.vertical, 6)
@@ -357,7 +393,9 @@ struct TodayView: View {
 
     private var dayCompleteOverlay: some View {
         ZStack {
-            Theme.paperGradient.ignoresSafeArea()
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .ignoresSafeArea()
             VStack(spacing: 18) {
                 Text("Day complete 🎯")
                     .font(Theme.Typography.largeTitle())
@@ -387,5 +425,130 @@ struct TodayView: View {
     private func dayKey(_ date: Date) -> String {
         let c = Calendar.current.dateComponents([.year, .month, .day], from: date)
         return "\(c.year ?? 0)-\(c.month ?? 0)-\(c.day ?? 0)"
+    }
+}
+
+// MARK: - Today tab only — minimal landing-style preview (black canvas, white CTAs)
+
+private enum TodayPageLabs {
+    static let canvas = Color(hex: 0x000000)
+    static let elevated = Color(hex: 0x0A0A0A)
+    static let secondaryLabel = Color(hex: 0xA0A0A0)
+    static let onLight = Color(hex: 0x000000)
+    static let hairline = Color.white.opacity(0.18)
+    static let hairlineMuted = Color.white.opacity(0.12)
+    static let pillSecondaryFill = Color.white.opacity(0.06)
+}
+
+private struct TodayPageLabsBackground: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        GeometryReader { proxy in
+            let w = proxy.size.width
+            let h = proxy.size.height
+            let m = max(w, h)
+            let blur: CGFloat = reduceMotion ? 22 : 52
+
+            ZStack {
+                // Crisp base (not blurred) — keeps edges true black.
+                LinearGradient(
+                    colors: [
+                        Color(hex: 0x000000),
+                        Color(hex: 0x050506),
+                        Color(hex: 0x0C0C0F),
+                        Color(hex: 0x020203),
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+
+                // Atmospheric black / white / gray — blurred as one layer.
+                ZStack {
+                    RadialGradient(
+                        colors: [
+                            Color.white.opacity(0.20),
+                            Color.white.opacity(0.06),
+                            Color(white: 0.55).opacity(0.10),
+                            Color.clear,
+                        ],
+                        center: UnitPoint(x: 0.88, y: -0.02),
+                        startRadius: m * 0.02,
+                        endRadius: m * 0.72
+                    )
+
+                    RadialGradient(
+                        colors: [
+                            Color(white: 0.42).opacity(0.28),
+                            Color(white: 0.18).opacity(0.12),
+                            Color.clear,
+                        ],
+                        center: UnitPoint(x: 0.12, y: 0.92),
+                        startRadius: m * 0.04,
+                        endRadius: m * 0.68
+                    )
+
+                    RadialGradient(
+                        colors: [
+                            Color(white: 0.30).opacity(0.14),
+                            Color.clear,
+                        ],
+                        center: UnitPoint(x: 0.55, y: 0.38),
+                        startRadius: 0,
+                        endRadius: m * 0.45
+                    )
+
+                    LinearGradient(
+                        colors: [
+                            Color.clear,
+                            Color.white.opacity(0.045),
+                            Color(white: 0.65).opacity(0.09),
+                            Color.white.opacity(0.04),
+                            Color.clear,
+                        ],
+                        startPoint: UnitPoint(x: -0.05, y: 0.35),
+                        endPoint: UnitPoint(x: 1.05, y: 0.62)
+                    )
+                    .rotationEffect(.degrees(-10))
+                }
+                .blur(radius: blur)
+                .opacity(reduceMotion ? 0.75 : 1)
+
+                // Light vignette (sharp) — depth without washing text.
+                LinearGradient(
+                    colors: [
+                        Color.black.opacity(0.42),
+                        Color.clear,
+                        Color.black.opacity(0.55),
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .opacity(0.85)
+            }
+            .frame(width: w, height: h)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(TodayPageLabs.canvas)
+        .allowsHitTesting(false)
+    }
+}
+
+private struct TodayPageLabsCard<Content: View>: View {
+    var cornerRadius: CGFloat = Theme.Layout.glassCornerRadius
+    @ViewBuilder var content: () -> Content
+
+    var body: some View {
+        content()
+            .padding(Theme.Layout.cardPadding)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background {
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .fill(TodayPageLabs.elevated)
+            }
+            .overlay {
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .strokeBorder(TodayPageLabs.hairline, lineWidth: 1)
+            }
     }
 }

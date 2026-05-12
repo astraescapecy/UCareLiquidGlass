@@ -9,8 +9,6 @@ struct SplashView: View {
 
     var body: some View {
         ZStack {
-            ShimmerParticlesOverlay()
-
             VStack(spacing: 16) {
                 Text("UCare")
                     .font(.system(size: 52, weight: .bold, design: .rounded))

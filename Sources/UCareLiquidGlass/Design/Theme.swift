@@ -2,27 +2,43 @@ import SwiftUI
 
 enum Theme {
     enum ColorToken {
-        /// Deep warm paper — Aesop-adjacent, not neon wellness.
-        static let backgroundBase = Color(hex: 0x1A1814)
-        static let backgroundAlt = Color(hex: 0x221E19)
-        static let surfaceGlass = Color(hex: 0x2A2620)
-        static let sand = Color(hex: 0xC4B8A5)
-        static let sage = Color(hex: 0x8B9A7E)
-        static let sageMuted = Color(hex: 0x5F6B55)
-        static let terracotta = Color(hex: 0xB86B52)
-        static let terracottaDeep = Color(hex: 0x8E4A3A)
-        static let warmWhite = Color(hex: 0xF5F0E8)
-        static let textPrimary = Color(hex: 0xF5F0E8).opacity(0.95)
-        static let textSecondary = Color(hex: 0xF5F0E8).opacity(0.55)
-        static let textTertiary = Color(hex: 0xF5F0E8).opacity(0.38)
-        static let glassStroke = Color.white.opacity(0.12)
-        static let glassStrokeFocus = Color.white.opacity(0.22)
-        static let success = Color(hex: 0x6B9B7A)
-        static let error = Color(hex: 0xC45C4A)
-        static let shimmerParticle = Color.white.opacity(0.18)
-        static let glowWarm = Color(hex: 0xB86B52).opacity(0.35)
+        /// Glossy dark — pure black with lifted charcoal for depth.
+        static let backgroundBase = Color(hex: 0x000000)
+        static let backgroundAlt = Color(hex: 0x0A0A0C)
+        static let surfaceGlass = Color(hex: 0x141418)
 
-        /// Backward-compatible names used across glass / selection UI.
+        /// Silver / steel for secondary chrome (legacy names: sage).
+        static let sand = Color(hex: 0xF2F4F8)
+        static let sage = Color(hex: 0xC8CED9)
+        static let sageMuted = Color(hex: 0x4A505C)
+
+        /// Primary “fire” accent (legacy `terracotta` = mid flame for single-color uses).
+        static let terracotta = Color(hex: 0xFF8A00)
+        static let terracottaDeep = Color(hex: 0x8B1538)
+
+        static let warmWhite = Color(hex: 0xF8F9FC)
+
+        static let textPrimary = Color(hex: 0xFFFFFF).opacity(0.96)
+        static let textSecondary = Color(hex: 0xE4E8EF).opacity(0.55)
+        static let textTertiary = Color(hex: 0xB8C0CC).opacity(0.42)
+
+        static let glassStroke = Color.white.opacity(0.16)
+        static let glassStrokeFocus = Color.white.opacity(0.38)
+
+        /// Username / status (neon green vs deep red, per spec).
+        static let usernameAvailable = Color(hex: 0x39FF88)
+        static let usernameTaken = Color(hex: 0xC62828)
+
+        static let success = Color(hex: 0x39FF88)
+        static let error = Color(hex: 0xE53935)
+
+        static let shimmerParticle = Color.white.opacity(0.2)
+
+        /// Warm rim / glow (iridescent edge).
+        static let glowWarm = Color(hex: 0xFF6B00).opacity(0.38)
+
+        static let accentWarm = Color(hex: 0xFFD60A)
+
         static let glowOuter = glowWarm
         static let ctaSlate = sage
         static let ctaIndigo = terracottaDeep
@@ -52,8 +68,14 @@ enum Theme {
         static let floatingButtonSize: CGFloat = 58
     }
 
+    /// Primary CTA — deep red → orange → yellow (liquid / iridescent edge).
     static let ctaGradient = LinearGradient(
-        colors: [ColorToken.terracottaDeep, ColorToken.terracotta],
+        colors: [
+            ColorToken.terracottaDeep,
+            Color(hex: 0xFF4500),
+            ColorToken.terracotta,
+            ColorToken.accentWarm,
+        ],
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )
@@ -77,5 +99,12 @@ extension Color {
         let g = Double((hex >> 8) & 0xFF) / 255
         let b = Double(hex & 0xFF) / 255
         self.init(.sRGB, red: r, green: g, blue: b, opacity: alpha)
+    }
+}
+
+extension View {
+    /// Hides the system scroll view fill so `MeshBackgroundView` in `RootView` stays visible behind lists and scroll content.
+    func ucareScrollOnMesh() -> some View {
+        scrollContentBackground(.hidden)
     }
 }

@@ -7,89 +7,186 @@ struct GetStartedView: View {
 
     @State private var appeared = false
 
-    private let highlights: [(icon: String, title: String, detail: String)] = [
-        ("wind", "Smell, taste, presence", "Protocols for breath, body odor, skin, hair, sleep, and confidence — outside the gym."),
-        ("leaf.fill", "Science, not vibes", "Every habit includes a honest “why it works” line — we cite limits, not fairy tales."),
-        ("sparkles", "AI-built for you", "Your multi-select goals become a chronological daily stack with timers and streaks."),
+    private let chips: [(icon: String, title: String)] = [
+        ("hands.sparkles", "Hygiene"),
+        ("figure.mind.and.body", "Self Improvement"),
+        ("scalemass.fill", "Balance"),
     ]
 
+    /// White → silver (Today labs headline), not orange.
+    private var headlineGradient: LinearGradient {
+        LinearGradient(
+            colors: [
+                Color.white,
+                Color(white: 0.88),
+                Color(hex: 0xA0A0A0),
+            ],
+            startPoint: .leading,
+            endPoint: .trailing
+        )
+    }
+
+    private var silverAccentGradient: LinearGradient {
+        LinearGradient(
+            colors: [Color.white.opacity(0.95), Color(white: 0.58)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 28) {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Become someone people want to be near.")
-                        .font(Theme.Typography.largeTitle())
-                        .foregroundStyle(Theme.ColorToken.textPrimary)
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    Text("UCare is the subscription self-care app for skin, hair, breath, hydration, sleep, gut comfort, intimate confidence, and the small rituals that compound.")
-                        .font(Theme.Typography.body())
-                        .foregroundStyle(Theme.ColorToken.textSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .padding(.top, 8)
-                .offset(x: reduceMotion ? 0 : CGFloat(parallax.roll * 10), y: reduceMotion ? 0 : CGFloat(parallax.pitch * -8))
+        GeometryReader { geo in
+            let bottomPad = max(geo.safeAreaInsets.bottom, 12)
+            VStack(spacing: 0) {
+                Spacer(minLength: 12)
 
                 VStack(spacing: 14) {
-                    ForEach(Array(highlights.enumerated()), id: \.offset) { index, item in
-                        GlassCard {
-                            HStack(alignment: .top, spacing: 14) {
-                                Image(systemName: item.icon)
-                                    .font(.system(size: 22, weight: .semibold))
-                                    .foregroundStyle(Theme.ctaGradient)
-                                    .frame(width: 36, height: 36)
-                                    .background {
-                                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                            .fill(Color.white.opacity(0.06))
-                                    }
-
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(item.title)
-                                        .font(Theme.Typography.headline())
-                                        .foregroundStyle(Theme.ColorToken.textPrimary)
-                                    Text(item.detail)
-                                        .font(Theme.Typography.subheadline())
-                                        .foregroundStyle(Theme.ColorToken.textSecondary)
-                                        .fixedSize(horizontal: false, vertical: true)
-                                }
-                                Spacer(minLength: 0)
-                            }
-                        }
+                    WelcomeOrbitalHeroView(compact: true)
+                        .environmentObject(parallax)
+                        .frame(maxWidth: .infinity)
+                        .scaleEffect(appeared ? 1 : 0.92)
                         .opacity(appeared ? 1 : 0)
-                        .offset(y: appeared ? 0 : 18)
-                        .animation(LLGAnimation.entrance(delay: Double(index) * (reduceMotion ? 0 : 0.08), reduceMotion: reduceMotion), value: appeared)
+                        .animation(LLGAnimation.entrance(reduceMotion: reduceMotion), value: appeared)
+
+                    HStack(spacing: 8) {
+                        Text("UCare")
+                            .font(.system(size: 20, weight: .semibold, design: .rounded))
+                            .foregroundStyle(Theme.ColorToken.textSecondary)
+                        Image(systemName: "sparkle")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(silverAccentGradient)
                     }
+                    .opacity(appeared ? 1 : 0)
+                    .animation(LLGAnimation.entrance(delay: reduceMotion ? 0 : 0.04, reduceMotion: reduceMotion), value: appeared)
+
+                    Text("Become someone people want to be near.")
+                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .foregroundStyle(headlineGradient)
+                        .multilineTextAlignment(.center)
+                        .minimumScaleFactor(0.75)
+                        .lineLimit(4)
+                        .padding(.horizontal, 4)
+                        .opacity(appeared ? 1 : 0)
+                        .offset(y: appeared ? 0 : 8)
+                        .animation(LLGAnimation.entrance(delay: reduceMotion ? 0 : 0.06, reduceMotion: reduceMotion), value: appeared)
                 }
 
-                VStack(spacing: 14) {
-                    GradientCTAButton(title: "Get started") {
-                        appState.markWelcomeSeen()
-                    }
+                Spacer(minLength: 20)
 
+                HStack(spacing: 10) {
+                    ForEach(Array(chips.enumerated()), id: \.offset) { index, chip in
+                        GetStartedPillarChip(icon: chip.icon, title: chip.title)
+                            .frame(maxWidth: .infinity)
+                            .opacity(appeared ? 1 : 0)
+                            .offset(y: appeared ? 0 : 12)
+                            .animation(LLGAnimation.entrance(delay: Double(index) * (reduceMotion ? 0 : 0.05) + 0.08, reduceMotion: reduceMotion), value: appeared)
+                    }
+                }
+                .padding(.horizontal, 4)
+
+                Spacer(minLength: 8)
+
+                VStack(spacing: 10) {
                     Button {
-                        appState.completeAuth()
+                        appState.markWelcomeSeen(openSignIn: true)
+                    } label: {
+                        Text("Get started")
+                            .font(Theme.Typography.headline())
+                            .foregroundStyle(Color.black)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background {
+                                RoundedRectangle(cornerRadius: Theme.Layout.fieldCornerRadius, style: .continuous)
+                                    .fill(Color.white)
+                            }
+                            .overlay {
+                                RoundedRectangle(cornerRadius: Theme.Layout.fieldCornerRadius, style: .continuous)
+                                    .strokeBorder(Color.white.opacity(0.35), lineWidth: 1)
+                            }
+                    }
+                    .buttonStyle(GlassCapsuleButtonStyle())
+                    Button {
+                        appState.markWelcomeSeen(openSignIn: false)
                     } label: {
                         HStack(spacing: 6) {
-                            Text("Already have an account?")
+                            Text("New here?")
                                 .foregroundStyle(Theme.ColorToken.textSecondary)
-                            Text("Sign in")
+                            Text("Create an account")
                                 .fontWeight(.semibold)
                                 .foregroundStyle(Theme.ColorToken.textPrimary)
                         }
                         .font(Theme.Typography.subheadline())
                     }
                     .buttonStyle(.plain)
-                    .padding(.top, 4)
                 }
-                .padding(.top, 10)
-                .padding(.bottom, 28)
+                .padding(.bottom, bottomPad)
+                .opacity(appeared ? 1 : 0)
+                .offset(y: appeared ? 0 : 14)
+                .animation(LLGAnimation.entrance(delay: reduceMotion ? 0 : 0.12, reduceMotion: reduceMotion), value: appeared)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.horizontal, Theme.Layout.contentHorizontalPadding)
+            .offset(x: reduceMotion ? 0 : CGFloat(parallax.roll * 6), y: reduceMotion ? 0 : CGFloat(parallax.pitch * -4))
         }
-        .scrollIndicators(.hidden)
-        .safeAreaInset(edge: .top) { Color.clear.frame(height: 8) }
         .onAppear {
             appeared = true
+        }
+    }
+}
+
+// MARK: - Get started — pillar chips (gradient ring + glow)
+
+private struct GetStartedPillarChip: View {
+    let icon: String
+    let title: String
+
+    private var ringGradient: AngularGradient {
+        AngularGradient(
+            colors: [
+                Theme.ColorToken.terracotta,
+                Color.black,
+                Color.white,
+                Color(white: 0.52),
+                Theme.ColorToken.terracotta,
+            ],
+            center: .center,
+            angle: .degrees(0)
+        )
+    }
+
+    var body: some View {
+        VStack(spacing: 6) {
+            ZStack {
+                Circle()
+                    .stroke(ringGradient, lineWidth: 7)
+                    .blur(radius: 10)
+                    .opacity(0.34)
+
+                Circle()
+                    .fill(Color.white.opacity(0.05))
+
+                Circle()
+                    .strokeBorder(ringGradient, lineWidth: 2)
+
+                Image(systemName: icon)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [Color.white, Color(white: 0.72)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+            }
+            .frame(width: 44, height: 44)
+
+            Text(title)
+                .font(Theme.Typography.caption())
+                .foregroundStyle(Theme.ColorToken.textTertiary)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .minimumScaleFactor(0.72)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 }

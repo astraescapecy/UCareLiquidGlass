@@ -66,13 +66,14 @@ struct PlanRevealView: View {
                     .foregroundStyle(Theme.ColorToken.textSecondary)
 
                 GradientCTAButton(title: appState.isRetakeProgramFlow ? "Save updated program" : "Enter UCare") {
-                    appState.finalizeOnboarding()
+                    Task { await appState.finalizeOnboarding() }
                 }
             }
             .padding(Theme.Layout.contentHorizontalPadding)
             .opacity(revealVisible ? 1 : 0)
             .scaleEffect(revealVisible ? 1 : 0.98)
         }
+        .ucareScrollOnMesh()
         .onAppear {
             withAnimation(LLGAnimation.entrance(reduceMotion: reduceMotion)) { revealVisible = true }
             ringProgress = 0

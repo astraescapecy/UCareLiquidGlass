@@ -219,6 +219,7 @@ struct ProgressOverviewView: View {
                                 }
                             }
                         }
+                        .ucareScrollOnMesh()
 
                         if WeeklyProgressPhotoStore.weekMondaysWithPhotos().count >= 2 {
                             Button("Swipe compare (oldest vs newest)") {
@@ -280,6 +281,7 @@ struct ProgressOverviewView: View {
             .animation(LLGAnimation.screenSpring(reduceMotion: reduceMotion), value: appState.weeklyCheckIns.count)
             .animation(LLGAnimation.screenSpring(reduceMotion: reduceMotion), value: photoVersion)
         }
+        .ucareScrollOnMesh()
         .task {
             await appState.refreshAppleHealthIfEnabled()
         }

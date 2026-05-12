@@ -55,6 +55,7 @@ struct ProgressPlaceholderView: View {
             .offset(y: entered ? 0 : 12)
             .animation(LLGAnimation.entrance(reduceMotion: reduceMotion), value: entered)
         }
+        .ucareScrollOnMesh()
         .onAppear {
             withAnimation(LLGAnimation.entrance(reduceMotion: reduceMotion)) {
                 entered = true

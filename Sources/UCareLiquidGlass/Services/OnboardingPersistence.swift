@@ -11,6 +11,9 @@ final class OnboardingPersistence {
         static let completionPrefix = "ucare.program.done."
         static let weeklyCheckIns = "ucare.weeklyCheckIns.v1"
         static let achievementPrefix = "ucare.ach."
+        static let subscriptionCongratsDismissed = "ucare.subscriptionCongratsDismissed"
+        /// Set when a verified purchase sends the user to `.analysis` (no profile yet); consumed in `finalizeOnboarding` so congrats still show if entitlements lag.
+        static let pendingPostOnboardingCongrats = "ucare.pendingPostOnboardingCongrats"
         // Legacy keys (pre UCare spec alignment)
         static let legacySawWelcome = "youcare.sawWelcome"
         static let legacyProfileJSON = "youcare.profile"
@@ -57,6 +60,17 @@ final class OnboardingPersistence {
         set { defaults.set(newValue, forKey: Key.username) }
     }
 
+    /// After the user dismisses the post-subscribe congrats sheet, repeat **restore** skips it until subscription lapses (see `refreshEntitlementsFromStore`).
+    var subscriptionCongratsDismissed: Bool {
+        get { defaults.bool(forKey: Key.subscriptionCongratsDismissed) }
+        set { defaults.set(newValue, forKey: Key.subscriptionCongratsDismissed) }
+    }
+
+    var pendingPostOnboardingCongrats: Bool {
+        get { defaults.bool(forKey: Key.pendingPostOnboardingCongrats) }
+        set { defaults.set(newValue, forKey: Key.pendingPostOnboardingCongrats) }
+    }
+
     func saveProfile(_ profile: UserProfile) {
         if let data = try? JSONEncoder().encode(profile) {
             defaults.set(data, forKey: Key.profileJSON)
@@ -82,6 +96,7 @@ final class OnboardingPersistence {
     func clearAll() {
         [
             Key.sawWelcome, Key.profileJSON, Key.draftJSON, Key.username, Key.weeklyCheckIns,
+            Key.subscriptionCongratsDismissed, Key.pendingPostOnboardingCongrats,
             Key.legacySawWelcome, Key.legacyProfileJSON, Key.legacyDraftJSON, Key.legacyUsername,
         ].forEach(defaults.removeObject(forKey:))
         for key in defaults.dictionaryRepresentation().keys where key.hasPrefix(Key.completionPrefix) || key.hasPrefix(Key.legacyCompletionPrefix) {

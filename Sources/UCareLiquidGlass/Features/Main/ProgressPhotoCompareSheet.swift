@@ -15,7 +15,7 @@ struct ProgressPhotoCompareSheet: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
             .indexViewStyle(.page(backgroundDisplayMode: .always))
-            .background(Theme.paperGradient.ignoresSafeArea())
+            .background(Color.clear.ignoresSafeArea())
             .navigationTitle("Compare")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

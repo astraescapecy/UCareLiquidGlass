@@ -11,7 +11,12 @@ struct RootView: View {
             MeshBackgroundView()
                 .environmentObject(parallax)
 
+            // Same soft shimmer as splash — keeps every phase on the “blurred gradient” look, not flat black.
+            ShimmerParticlesOverlay()
+
             phaseContent
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.clear)
                 .transition(reduceMotion ? .opacity : phaseTransition)
         }
         .animation(LLGAnimation.screenSpring(reduceMotion: reduceMotion), value: appState.phase)
@@ -48,10 +53,16 @@ struct RootView: View {
         case .auth:
             SignUpView()
                 .environmentObject(parallax)
+        case .usernameSetup:
+            UsernameSetupView()
+                .environmentObject(parallax)
         case .questionnaire:
             QuestionnaireFlowView()
+                .environmentObject(parallax)
         case .paywall:
             PaywallView()
+        case .subscriptionCongrats:
+            SubscriptionCongratsView()
         case .analysis:
             AIAnalysisLoadingView()
         case .reveal:

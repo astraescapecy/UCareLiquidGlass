@@ -57,6 +57,7 @@ struct GuidedStepView: View {
                 }
                 .padding(Theme.Layout.contentHorizontalPadding)
             }
+            .ucareScrollOnMesh()
             .navigationTitle("Guided step")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

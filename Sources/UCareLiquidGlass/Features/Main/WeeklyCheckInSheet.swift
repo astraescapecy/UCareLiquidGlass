@@ -47,7 +47,7 @@ struct WeeklyCheckInSheet: View {
                 .padding(Theme.Layout.contentHorizontalPadding)
                 .padding(.bottom, 28)
             }
-            .background(Theme.paperGradient.opacity(0.001))
+            .ucareScrollOnMesh()
             .navigationTitle("This week")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

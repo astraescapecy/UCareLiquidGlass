@@ -21,6 +21,8 @@ final class AppState: ObservableObject {
     @Published var healthKitBusy = false
 
     private let persistence = OnboardingPersistence()
+    /// When true, `SignUpView` opens on the Sign In tab (set when leaving the welcome screen).
+    private var openAuthOnSignInTab = false
 
     init() {
         userProfile = persistence.loadProfile()
@@ -55,26 +57,55 @@ final class AppState: ObservableObject {
         guard phase == .splash else { return }
         if userProfile != nil {
             phase = isSubscribed ? .main : .paywall
-        } else if persistence.sawWelcome {
-            phase = .auth
         } else {
+            // Logged-out / new install: always splash → welcome → auth (no skipping welcome).
             phase = .getStarted
         }
     }
 
-    func markWelcomeSeen() {
+    func markWelcomeSeen(openSignIn: Bool = true) {
         persistence.sawWelcome = true
+        openAuthOnSignInTab = openSignIn
         phase = .auth
+    }
+
+    func consumeOpenAuthOnSignInTab() -> Bool {
+        let on = openAuthOnSignInTab
+        openAuthOnSignInTab = false
+        return on
     }
 
     func completeAuth() {
         persistence.sawWelcome = true
-        if username.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            let raw = signUpDraft.email.split(separator: "@").first.map(String.init) ?? "member"
-            let cleaned = raw.filter(\.isLetter).lowercased()
-            setUsername(String(cleaned.prefix(14)).isEmpty ? "member" : String(cleaned.prefix(14)))
+        let u = username.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !u.isEmpty, UCareUsernameAvailability.isAvailable(u) {
+            phase = .questionnaire
+        } else {
+            phase = .usernameSetup
         }
+    }
+
+    func finishUsernameSetup(normalized: String) {
+        let n = UCareUsernameAvailability.normalized(normalized)
+        guard UCareUsernameAvailability.isAvailable(n) else { return }
+        setUsername(n)
         phase = .questionnaire
+    }
+
+    func dismissSubscriptionCongrats() {
+        guard phase == .subscriptionCongrats else { return }
+        persistence.subscriptionCongratsDismissed = true
+        phase = .main
+        Task { await UCareNotificationScheduler.refresh(appState: self) }
+    }
+
+    /// New purchases always show congrats; **restore** skips it after the user has dismissed congrats once (until subscription lapses).
+    private func phaseAfterSubscribeSuccess(isRestore: Bool) -> AppPhase {
+        guard userProfile != nil else { return .analysis }
+        if isRestore, persistence.subscriptionCongratsDismissed {
+            return .main
+        }
+        return .subscriptionCongrats
     }
 
     func setUsername(_ value: String) {
@@ -139,8 +170,10 @@ final class AppState: ObservableObject {
         questionnaire.optedInSkinPhoto = p.optedInSkinPhoto
     }
 
-    func finalizeOnboarding() {
+    func finalizeOnboarding() async {
+        await refreshEntitlementsFromStore(isRestore: false)
         guard let built = buildProfile() else { return }
+        let wasRetake = isRetakeProgramFlow
         if isRetakeProgramFlow, let existing = userProfile {
             var merged = existing
             merged.careGoals = built.careGoals
@@ -170,8 +203,15 @@ final class AppState: ObservableObject {
             persistence.saveCompletedStepIDs([], for: .now)
         }
         persistence.saveDraft(questionnaire)
-        phase = .main
-        rescheduleLocalNotifications()
+        let owedCongrats = persistence.pendingPostOnboardingCongrats
+        persistence.pendingPostOnboardingCongrats = false
+        // First-time onboarding: paywall before profile uses `pendingPostOnboardingCongrats`; refresh above keeps `isSubscribed` accurate if StoreKit lags.
+        if !wasRetake, isSubscribed || owedCongrats {
+            phase = .subscriptionCongrats
+        } else {
+            phase = .main
+            rescheduleLocalNotifications()
+        }
     }
 
     func previewProfile() -> UserProfile? {
@@ -317,7 +357,7 @@ final class AppState: ObservableObject {
         completedStepIDs = []
         weeklyCheckIns = []
         isRetakeProgramFlow = false
-        phase = .auth
+        phase = .splash
     }
 
     func deleteLocalAccount() {
@@ -350,11 +390,12 @@ final class AppState: ObservableObject {
                     case .verified(let transaction):
                         await transaction.finish()
                         isSubscribed = true
-                        if userProfile != nil {
-                            phase = .main
+                        if userProfile == nil {
+                            persistence.pendingPostOnboardingCongrats = true
                         } else {
-                            phase = .analysis
+                            persistence.pendingPostOnboardingCongrats = false
                         }
+                        phase = phaseAfterSubscribeSuccess(isRestore: false)
                     case .unverified:
                         storeStatusMessage = "Purchase could not be verified."
                     }
@@ -371,11 +412,12 @@ final class AppState: ObservableObject {
         } else {
             #if DEBUG
             isSubscribed = true
-            if userProfile != nil {
-                phase = .main
+            if userProfile == nil {
+                persistence.pendingPostOnboardingCongrats = true
             } else {
-                phase = .analysis
+                persistence.pendingPostOnboardingCongrats = false
             }
+            phase = phaseAfterSubscribeSuccess(isRestore: false)
             storeStatusMessage = "Demo unlock (Debug): no StoreKit product matched. Configure IAPs or StoreKit config."
             #else
             storeStatusMessage = "This plan isn’t available from the App Store yet."
@@ -392,11 +434,12 @@ final class AppState: ObservableObject {
         }
         await refreshEntitlementsFromStore(isRestore: true)
         if isSubscribed, userProfile != nil {
-            phase = .main
+            phase = phaseAfterSubscribeSuccess(isRestore: true)
         }
     }
 
     private func refreshEntitlementsFromStore(isRestore: Bool) async {
+        let wasSubscribed = isSubscribed
         var active = false
         let allowed = Set(PaywallPlan.allCases.map(\.storeProductID))
         for await entitlement in Transaction.currentEntitlements {
@@ -409,6 +452,9 @@ final class AppState: ObservableObject {
             isSubscribed = true
         } else if isRestore {
             isSubscribed = false
+        }
+        if wasSubscribed, !isSubscribed {
+            persistence.subscriptionCongratsDismissed = false
         }
     }
 

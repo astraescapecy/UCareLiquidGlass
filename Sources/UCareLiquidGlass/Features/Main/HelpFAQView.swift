@@ -32,6 +32,7 @@ struct HelpFAQView: View {
                 }
                 .padding(Theme.Layout.contentHorizontalPadding)
             }
+            .ucareScrollOnMesh()
             .navigationTitle("Help & FAQ")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -85,6 +85,7 @@ struct PaywallView: View {
             .opacity(appeared ? 1 : 0)
             .offset(y: appeared ? 0 : 12)
         }
+        .ucareScrollOnMesh()
         .onAppear {
             withAnimation(LLGAnimation.entrance(reduceMotion: reduceMotion)) { appeared = true }
         }
